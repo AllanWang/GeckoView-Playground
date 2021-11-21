@@ -18,6 +18,15 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // GeckoView
+    // https://bugzilla.mozilla.org/show_bug.cgi?id=1571175
+    // Replaces `android.bundle.enableUncompressedNativeLibs = false` in gradle.properties
+    packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     buildFeatures {
         viewBinding = true
     }
@@ -39,13 +48,14 @@ android {
 
 dependencies {
 
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.0'
-    implementation 'com.google.android.material:material:1.4.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.2'
-    testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    implementation "androidx.core:core-ktx:1.7.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.4.0"
+    implementation "androidx.appcompat:appcompat:1.4.0"
+    implementation "com.google.android.material:material:1.4.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.2"
+    testImplementation "junit:junit:4.13.2"
+    androidTestImplementation "androidx.test.ext:junit:1.1.3"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
 
     implementation "com.google.dagger:hilt-android:2.39.1"
     kapt "com.google.dagger:hilt-android-compiler:2.39.1"
@@ -54,8 +64,33 @@ dependencies {
     implementation "com.google.flogger:flogger:${flogger}"
     implementation "com.google.flogger:flogger-system-backend:${flogger}"
 
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.5.2"
+
     // https://maven.mozilla.org/?prefix=maven2/org/mozilla/geckoview/geckoview-beta/
     def geckoviewChannel = "beta"
     def geckoviewVersion = "95.0.20211118185700"
-    implementation "org.mozilla.geckoview:geckoview-${geckoviewChannel}:${geckoviewVersion}"
+//    implementation "org.mozilla.geckoview:geckoview-${geckoviewChannel}:${geckoviewVersion}"
+
+    def mozillaAndroidComponents = "94.0.15"
+
+    implementation "org.mozilla.components:browser-toolbar:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:concept-toolbar:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:browser-state:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:concept-engine:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:browser-engine-gecko:${mozillaAndroidComponents}"
+
+    implementation "org.mozilla.components:feature-app-links:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-autofill:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-awesomebar:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-contextmenu:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-downloads:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-findinpage:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-logins:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-media:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-prompts:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-push:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-session:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-sitepermissions:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-toolbar:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-webnotifications:${mozillaAndroidComponents}"
 }
