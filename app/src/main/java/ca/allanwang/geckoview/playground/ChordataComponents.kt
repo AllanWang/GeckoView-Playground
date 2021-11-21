@@ -5,10 +5,13 @@ import com.google.common.flogger.FluentLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import mozilla.components.browser.engine.gecko.GeckoEngine
 import mozilla.components.browser.engine.gecko.fetch.GeckoViewFetchClient
+import mozilla.components.browser.engine.gecko.permission.GeckoSitePermissionsStorage
+import mozilla.components.browser.icons.BrowserIcons
 import mozilla.components.browser.state.engine.EngineMiddleware
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.engine.DefaultSettings
 import mozilla.components.concept.engine.Engine
+import mozilla.components.concept.engine.permission.SitePermissionsStorage
 import mozilla.components.concept.fetch.Client
 import mozilla.components.feature.app.links.AppLinksUseCases
 import mozilla.components.feature.contextmenu.ContextMenuUseCases
@@ -16,6 +19,8 @@ import mozilla.components.feature.downloads.DownloadMiddleware
 import mozilla.components.feature.downloads.DownloadsUseCases
 import mozilla.components.feature.prompts.PromptMiddleware
 import mozilla.components.feature.session.SessionUseCases
+import mozilla.components.feature.sitepermissions.OnDiskSitePermissionsStorage
+import mozilla.components.feature.webnotifications.WebNotificationFeature
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.thirdparty.com.google.android.exoplayer2.offline.DownloadService
@@ -63,13 +68,28 @@ class ChordataComponents @Inject constructor(
         GeckoEngine(context, engineDefaultSettings, runtime)
     }
 
+    val icons by lazy { BrowserIcons(context, client) }
+
     val store: BrowserStore by lazy {
         BrowserStore(
             middleware = listOf(
                 DownloadMiddleware(context, DownloadService::class.java),
                 PromptMiddleware()
             ) + EngineMiddleware.create(engine)
-        )
+        ).apply {
+            WebNotificationFeature(
+                context,
+                engine,
+                icons,
+                R.mipmap.ic_launcher_round,
+                sitePermissionsStorage,
+                ChordataActivity::class.java
+            )
+        }
+    }
+
+    val sitePermissionsStorage: SitePermissionsStorage by lazy {
+        GeckoSitePermissionsStorage(runtime, OnDiskSitePermissionsStorage(context))
     }
 
     val sessionUseCases: SessionUseCases by lazy { SessionUseCases(store) }

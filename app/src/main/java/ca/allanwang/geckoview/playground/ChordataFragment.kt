@@ -24,6 +24,7 @@ import mozilla.components.feature.sitepermissions.SitePermissionsFeature
 import mozilla.components.feature.sitepermissions.SitePermissionsRules
 import mozilla.components.feature.toolbar.ToolbarFeature
 import mozilla.components.support.base.feature.LifecycleAwareFeature
+import mozilla.components.support.base.feature.PermissionsFeature
 import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.WebExtension
@@ -99,13 +100,7 @@ class ChordataFragment : Fragment() {
                 store = components.store,
                 fragmentManager = parentFragmentManager,
                 onNeedToRequestPermissions = { permissions ->
-                    viewLifecycleOwner.lifecycleScope.launch {
-                        val results = requestPermissions(requireView().context, permissions)
-                        promptFeature.get()?.onPermissionsResult(permissions,
-                            permissions.map { if (results[it] == true) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED }
-                                .toIntArray()
-                        )
-                    }
+                    promptFeature.requestPermissions(permissions)
                 }
             )
         )
@@ -134,12 +129,11 @@ class ChordataFragment : Fragment() {
             feature = SitePermissionsFeature(
                 context = appContext,
                 fragmentManager = parentFragmentManager,
-                onNeedToRequestPermissions = {
-                    // This it will be always empty because we are not asking for user input
+                onNeedToRequestPermissions = { permissions ->
+                    sitePermissionsFeature.requestPermissions(permissions)
                 },
                 onShouldShowRequestPermissionRationale = {
-                    // Since we don't request permissions this it will not be called
-                    false
+                    true
                 },
                 sitePermissionsRules = sitePermissionsRules,
                 store = components.store
@@ -237,6 +231,20 @@ class ChordataFragment : Fragment() {
             .forEach {
                 lifecycle.addObserver(it)
             }
+    }
+
+    private fun <T> ViewBoundFeatureWrapper<T>.requestPermissions(
+        permissions: Array<String>
+    ) where T : LifecycleAwareFeature, T : PermissionsFeature {
+        get() ?: return
+        val context = view?.context ?: return
+        viewLifecycleOwner.lifecycleScope.launch {
+            val results = requestPermissions(context, permissions)
+            get()?.onPermissionsResult(permissions,
+                permissions.map { if (results[it] == true) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED }
+                    .toIntArray()
+            )
+        }
     }
 
     /**
