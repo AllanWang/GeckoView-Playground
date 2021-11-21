@@ -77,6 +77,8 @@ class ChordataComponents @Inject constructor(
                 PromptMiddleware()
             ) + EngineMiddleware.create(engine)
         ).apply {
+            icons.install(engine, this)
+
             WebNotificationFeature(
                 context,
                 engine,

@@ -28,8 +28,6 @@ import mozilla.components.support.base.feature.PermissionsFeature
 import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
 import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.WebExtension
-import org.mozilla.geckoview.WebPushDelegate
-import org.mozilla.geckoview.WebPushSubscription
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -159,20 +157,24 @@ class ChordataFragment : Fragment() {
 //            )
 //        }
 
-        components.runtime.webPushController.delegate = object : WebPushDelegate {
-            override fun onSubscribe(
-                scope: String,
-                appServerKey: ByteArray?
-            ): GeckoResult<WebPushSubscription>? {
-                logger.atInfo().log("onSubscribe %s: %s", scope, appServerKey)
-                return super.onSubscribe(scope, appServerKey)
-            }
-
-            override fun onGetSubscription(scope: String): GeckoResult<WebPushSubscription>? {
-                logger.atInfo().log("onGetSubscription %s", scope)
-                return super.onGetSubscription(scope)
-            }
-        }
+        logger.atInfo().log(
+            "Web push controller.delegate nonnull %b",
+            components.runtime.webPushController.delegate != null
+        )
+//        components.runtime.webPushController.delegate = object : WebPushDelegate {
+//            override fun onSubscribe(
+//                scope: String,
+//                appServerKey: ByteArray?
+//            ): GeckoResult<WebPushSubscription>? {
+//                logger.atInfo().log("onSubscribe %s: %s", scope, appServerKey)
+//                return super.onSubscribe(scope, appServerKey)
+//            }
+//
+//            override fun onGetSubscription(scope: String): GeckoResult<WebPushSubscription>? {
+//                logger.atInfo().log("onGetSubscription %s", scope)
+//                return super.onGetSubscription(scope)
+//            }
+//        }
 
 //        session.permissionDelegate = object : GeckoSession.PermissionDelegate {
 //            override fun onAndroidPermissionsRequest(
@@ -224,7 +226,7 @@ class ChordataFragment : Fragment() {
 //            }
 //        }
 
-        components.sessionUseCases.loadUrl(NOTIFICATION_DEMO_URL)
+        components.sessionUseCases.loadUrl(DEFAULT_URL)
 
         listOf(toolbarFeature, sessionFeature).asSequence()
             .map { it.get() ?: throw IllegalStateException("Feature not set") }
@@ -284,7 +286,11 @@ class ChordataFragment : Fragment() {
 
     companion object {
         private val logger = FluentLogger.forEnclosingClass()
+
         private const val GITHUB_URL = "https://github.com/AllanWang"
         private const val NOTIFICATION_DEMO_URL = "https://pushalert.co/demo"
+        private const val FACEBOOK_M_URL = "https://m.facebook.com"
+
+        private const val DEFAULT_URL = FACEBOOK_M_URL
     }
 }
