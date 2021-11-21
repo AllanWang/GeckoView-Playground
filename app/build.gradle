@@ -50,6 +50,10 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.39.1"
     kapt "com.google.dagger:hilt-android-compiler:2.39.1"
 
+    def flogger = "0.7.1"
+    implementation "com.google.flogger:flogger:${flogger}"
+    implementation "com.google.flogger:flogger-system-backend:${flogger}"
+
     // https://maven.mozilla.org/?prefix=maven2/org/mozilla/geckoview/geckoview-beta/
     def geckoviewChannel = "beta"
     def geckoviewVersion = "95.0.20211118185700"
