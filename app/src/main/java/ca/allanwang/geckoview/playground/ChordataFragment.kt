@@ -20,6 +20,7 @@ import mozilla.components.feature.app.links.AppLinksFeature
 import mozilla.components.feature.downloads.share.ShareDownloadFeature
 import mozilla.components.feature.prompts.PromptFeature
 import mozilla.components.feature.session.SessionFeature
+import mozilla.components.feature.session.SwipeRefreshFeature
 import mozilla.components.feature.sitepermissions.SitePermissionsFeature
 import mozilla.components.feature.sitepermissions.SitePermissionsRules
 import mozilla.components.feature.toolbar.ToolbarFeature
@@ -35,7 +36,8 @@ import kotlin.coroutines.suspendCoroutine
 @AndroidEntryPoint
 class ChordataFragment : Fragment() {
 
-    private lateinit var binding: ChordataWebBinding
+    private var _binding: ChordataWebBinding? = null
+    private val binding: ChordataWebBinding get() = _binding!!
 
     @Inject
     @ApplicationContext
@@ -50,6 +52,7 @@ class ChordataFragment : Fragment() {
     private val sessionFeature = ViewBoundFeatureWrapper<SessionFeature>()
     private val toolbarFeature = ViewBoundFeatureWrapper<ToolbarFeature>()
     private val promptFeature = ViewBoundFeatureWrapper<PromptFeature>()
+    private val swipeRefreshFeature = ViewBoundFeatureWrapper<SwipeRefreshFeature>()
 
     //    private val downloadsFeature = ViewBoundFeatureWrapper<DownloadsFeature>()
     private val shareDownloadFeature = ViewBoundFeatureWrapper<ShareDownloadFeature>()
@@ -61,7 +64,7 @@ class ChordataFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = ChordataWebBinding.inflate(inflater, container, false)
+        _binding = ChordataWebBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -69,7 +72,7 @@ class ChordataFragment : Fragment() {
         binding.init()
     }
 
-    fun <T : LifecycleAwareFeature> ViewBoundFeatureWrapper<T>.set(feature: T) {
+    private fun <T : LifecycleAwareFeature> ViewBoundFeatureWrapper<T>.set(feature: T) {
         set(feature, this@ChordataFragment, binding.root)
     }
 
@@ -78,8 +81,8 @@ class ChordataFragment : Fragment() {
 
         sessionFeature.set(
             SessionFeature(
-                store = components.store,
-                goBackUseCase = components.sessionUseCases.goBack,
+                store = components.core.store,
+                goBackUseCase = components.useCases.sessionUseCases.goBack,
                 engineView = engineView
             )
         )
@@ -87,15 +90,15 @@ class ChordataFragment : Fragment() {
         toolbarFeature.set(
             ToolbarFeature(
                 toolbar = toolbar,
-                store = components.store,
-                loadUrlUseCase = components.sessionUseCases.loadUrl
+                store = components.core.store,
+                loadUrlUseCase = components.useCases.sessionUseCases.loadUrl
             )
         )
 
         promptFeature.set(
             PromptFeature(
                 fragment = this@ChordataFragment,
-                store = components.store,
+                store = components.core.store,
                 fragmentManager = parentFragmentManager,
                 onNeedToRequestPermissions = { permissions ->
                     promptFeature.requestPermissions(permissions)
@@ -103,13 +106,21 @@ class ChordataFragment : Fragment() {
             )
         )
 
+        swipeRefreshFeature.set(
+            SwipeRefreshFeature(
+                store = components.core.store,
+                reloadUrlUseCase = components.useCases.sessionUseCases.reload,
+                swipeRefreshLayout = swipeRefresh
+            )
+        )
+
         appLinksFeature.set(
             feature = AppLinksFeature(
                 appContext,
-                store = components.store,
+                store = components.core.store,
                 fragmentManager = parentFragmentManager,
                 launchInApp = { true },
-                loadUrlUseCase = components.sessionUseCases.loadUrl
+                loadUrlUseCase = components.useCases.sessionUseCases.loadUrl
             )
         )
 
@@ -127,6 +138,7 @@ class ChordataFragment : Fragment() {
             feature = SitePermissionsFeature(
                 context = appContext,
                 fragmentManager = parentFragmentManager,
+                storage = components.core.sitePermissionsStorage,
                 onNeedToRequestPermissions = { permissions ->
                     sitePermissionsFeature.requestPermissions(permissions)
                 },
@@ -134,105 +146,11 @@ class ChordataFragment : Fragment() {
                     true
                 },
                 sitePermissionsRules = sitePermissionsRules,
-                store = components.store
+                store = components.core.store
             )
         )
 
-        val messageDelegate = object : WebExtension.MessageDelegate {
-            override fun onMessage(
-                nativeApp: String,
-                message: Any,
-                sender: WebExtension.MessageSender
-            ): GeckoResult<Any>? {
-                logger.atInfo().log("%s", message)
-                return null
-            }
-        }
-
-//        components.runtime.webExtensionController.ensureGeckoTestBuiltIn().accept { extension ->
-//            session.webExtensionController.setMessageDelegate(
-//                extension!!,
-//                messageDelegate,
-//                "browser"
-//            )
-//        }
-
-        logger.atInfo().log(
-            "Web push controller.delegate nonnull %b",
-            components.runtime.webPushController.delegate != null
-        )
-//        components.runtime.webPushController.delegate = object : WebPushDelegate {
-//            override fun onSubscribe(
-//                scope: String,
-//                appServerKey: ByteArray?
-//            ): GeckoResult<WebPushSubscription>? {
-//                logger.atInfo().log("onSubscribe %s: %s", scope, appServerKey)
-//                return super.onSubscribe(scope, appServerKey)
-//            }
-//
-//            override fun onGetSubscription(scope: String): GeckoResult<WebPushSubscription>? {
-//                logger.atInfo().log("onGetSubscription %s", scope)
-//                return super.onGetSubscription(scope)
-//            }
-//        }
-
-//        session.permissionDelegate = object : GeckoSession.PermissionDelegate {
-//            override fun onAndroidPermissionsRequest(
-//                session: GeckoSession,
-//                permissions: Array<out String>?,
-//                callback: GeckoSession.PermissionDelegate.Callback
-//            ) {
-//                if (permissions == null) {
-//                    callback.grant()
-//                    return
-//                }
-//                val missingPermissions: List<String> = permissions
-//                    .filter {
-//                        ContextCompat.checkSelfPermission(
-//                            this@ChordataActivity,
-//                            it
-//                        ) != PackageManager.PERMISSION_GRANTED
-//                    }
-//                if (missingPermissions.isEmpty()) {
-//                    callback.grant()
-//                    return
-//                }
-//                val requestPermissionLauncher =
-//                    registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionsResult: Map<String, Boolean> ->
-//                        if (permissionsResult.values.all { it })
-//                            callback.grant()
-//                        else
-//                            callback.reject()
-//                    }
-//                requestPermissionLauncher.launch(missingPermissions.toTypedArray())
-//            }
-//
-//            override fun onContentPermissionRequest(
-//                session: GeckoSession,
-//                perm: GeckoSession.PermissionDelegate.ContentPermission
-//            ): GeckoResult<Int>? {
-//                logger.atInfo().log("Requesting permission %s %s", perm.contextId, perm.uri)
-//                return GeckoResult.fromValue(GeckoSession.PermissionDelegate.ContentPermission.VALUE_ALLOW)
-//            }
-//
-//            override fun onMediaPermissionRequest(
-//                session: GeckoSession,
-//                uri: String,
-//                video: Array<out GeckoSession.PermissionDelegate.MediaSource>?,
-//                audio: Array<out GeckoSession.PermissionDelegate.MediaSource>?,
-//                callback: GeckoSession.PermissionDelegate.MediaCallback
-//            ) {
-//                super.onMediaPermissionRequest(session, uri, video, audio, callback)
-//            }
-//        }
-
-        components.sessionUseCases.loadUrl(DEFAULT_URL)
-
-        listOf(toolbarFeature, sessionFeature).asSequence()
-            .map { it.get() ?: throw IllegalStateException("Feature not set") }
-            .forEach {
-                lifecycle.addObserver(it)
-            }
+        // components.useCases.sessionUseCases.loadUrl(DEFAULT_URL)
     }
 
     private fun <T> ViewBoundFeatureWrapper<T>.requestPermissions(
@@ -283,6 +201,10 @@ class ChordataFragment : Fragment() {
         return false
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     companion object {
         private val logger = FluentLogger.forEnclosingClass()
@@ -290,7 +212,9 @@ class ChordataFragment : Fragment() {
         private const val GITHUB_URL = "https://github.com/AllanWang"
         private const val NOTIFICATION_DEMO_URL = "https://pushalert.co/demo"
         private const val FACEBOOK_M_URL = "https://m.facebook.com"
+        private const val FACEBOOK_M_PUSH_URL =
+            "https://m.facebook.com/settings/notifications/push/"
 
-        private const val DEFAULT_URL = FACEBOOK_M_URL
+        private const val DEFAULT_URL = FACEBOOK_M_PUSH_URL
     }
 }

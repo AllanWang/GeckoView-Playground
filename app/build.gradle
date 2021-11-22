@@ -53,6 +53,8 @@ dependencies {
     implementation "androidx.appcompat:appcompat:1.4.0"
     implementation "com.google.android.material:material:1.4.0"
     implementation "androidx.constraintlayout:constraintlayout:2.1.2"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.test.ext:junit:1.1.3"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
@@ -71,16 +73,20 @@ dependencies {
     def geckoviewVersion = "95.0.20211118185700"
 //    implementation "org.mozilla.geckoview:geckoview-${geckoviewChannel}:${geckoviewVersion}"
 
-    def mozillaAndroidComponents = "94.0.15"
+    def mozillaAndroidComponents = "95.0.9"
 
-    implementation "org.mozilla.components:browser-toolbar:${mozillaAndroidComponents}"
-    implementation "org.mozilla.components:concept-toolbar:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:browser-engine-gecko:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:browser-domains:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:browser-icons:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:browser-menu:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:browser-session-storage:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:browser-state:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:browser-toolbar:${mozillaAndroidComponents}"
+
     implementation "org.mozilla.components:concept-engine:${mozillaAndroidComponents}"
-    implementation "org.mozilla.components:browser-engine-gecko:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:concept-menu:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:concept-storage:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:concept-toolbar:${mozillaAndroidComponents}"
 
     implementation "org.mozilla.components:feature-app-links:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-autofill:${mozillaAndroidComponents}"
@@ -94,6 +100,12 @@ dependencies {
     implementation "org.mozilla.components:feature-push:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-session:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-sitepermissions:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-tabs:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-toolbar:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-webnotifications:${mozillaAndroidComponents}"
+
+    implementation "org.mozilla.components:support-ktx:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:support-webextensions:${mozillaAndroidComponents}"
+
+    implementation "org.mozilla.components:ui-autocomplete:${mozillaAndroidComponents}"
 }
