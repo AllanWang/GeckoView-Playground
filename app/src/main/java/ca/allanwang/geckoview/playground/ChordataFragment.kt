@@ -16,6 +16,7 @@ import com.google.common.flogger.FluentLogger
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
+import mozilla.components.browser.state.selector.selectedTab
 import mozilla.components.feature.app.links.AppLinksFeature
 import mozilla.components.feature.downloads.share.ShareDownloadFeature
 import mozilla.components.feature.prompts.PromptFeature
@@ -87,6 +88,9 @@ class ChordataFragment : Fragment() {
             )
         )
 
+        val tabs = components.core.store.state.tabs.map { it.content.url }
+        logger.atInfo().log("Tabs %s", tabs)
+
         toolbarFeature.set(
             ToolbarFeature(
                 toolbar = toolbar,
@@ -94,7 +98,7 @@ class ChordataFragment : Fragment() {
                 loadUrlUseCase = components.useCases.sessionUseCases.loadUrl
             )
         )
-
+        
         promptFeature.set(
             PromptFeature(
                 fragment = this@ChordataFragment,
