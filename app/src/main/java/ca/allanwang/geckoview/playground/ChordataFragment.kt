@@ -16,7 +16,7 @@ import com.google.common.flogger.FluentLogger
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
-import mozilla.components.browser.state.selector.selectedTab
+import mozilla.components.browser.state.action.TabListAction
 import mozilla.components.feature.app.links.AppLinksFeature
 import mozilla.components.feature.downloads.share.ShareDownloadFeature
 import mozilla.components.feature.prompts.PromptFeature
@@ -24,12 +24,11 @@ import mozilla.components.feature.session.SessionFeature
 import mozilla.components.feature.session.SwipeRefreshFeature
 import mozilla.components.feature.sitepermissions.SitePermissionsFeature
 import mozilla.components.feature.sitepermissions.SitePermissionsRules
+import mozilla.components.feature.tabs.TabsUseCases
 import mozilla.components.feature.toolbar.ToolbarFeature
 import mozilla.components.support.base.feature.LifecycleAwareFeature
 import mozilla.components.support.base.feature.PermissionsFeature
 import mozilla.components.support.base.feature.ViewBoundFeatureWrapper
-import org.mozilla.geckoview.GeckoResult
-import org.mozilla.geckoview.WebExtension
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.suspendCoroutine
@@ -80,15 +79,18 @@ class ChordataFragment : Fragment() {
     @SuppressLint("WrongThread")
     private fun ChordataWebBinding.init() {
 
+        var sessionId = "a"
+
         sessionFeature.set(
             SessionFeature(
                 store = components.core.store,
                 goBackUseCase = components.useCases.sessionUseCases.goBack,
-                engineView = engineView
+                engineView = engineView,
+                tabId = sessionId
             )
         )
 
-        val tabs = components.core.store.state.tabs.map { it.content.url }
+        val tabs = components.core.store.state.tabs.map { it.content.url to it.contextId }
         logger.atInfo().log("Tabs %s", tabs)
 
         toolbarFeature.set(
@@ -98,7 +100,7 @@ class ChordataFragment : Fragment() {
                 loadUrlUseCase = components.useCases.sessionUseCases.loadUrl
             )
         )
-        
+
         promptFeature.set(
             PromptFeature(
                 fragment = this@ChordataFragment,
@@ -109,6 +111,8 @@ class ChordataFragment : Fragment() {
                 }
             )
         )
+
+        components.useCases.sessionUseCases.loadUrl
 
         swipeRefreshFeature.set(
             SwipeRefreshFeature(
@@ -136,7 +140,8 @@ class ChordataFragment : Fragment() {
             autoplayAudible = SitePermissionsRules.AutoplayAction.BLOCKED,
             autoplayInaudible = SitePermissionsRules.AutoplayAction.ALLOWED,
             persistentStorage = SitePermissionsRules.Action.BLOCKED,
-            mediaKeySystemAccess = SitePermissionsRules.Action.BLOCKED
+            mediaKeySystemAccess = SitePermissionsRules.Action.BLOCKED,
+            crossOriginStorageAccess = SitePermissionsRules.Action.BLOCKED,
         )
         sitePermissionsFeature.set(
             feature = SitePermissionsFeature(
@@ -155,6 +160,13 @@ class ChordataFragment : Fragment() {
         )
 
         // components.useCases.sessionUseCases.loadUrl(DEFAULT_URL)
+    }
+
+    private fun TabsUseCases.switchSessionId(sessionId: String) {
+        val store = components.core.store
+        val newTabs = store.state.tabs.map { it.copy(contextId = sessionId) }
+        store.dispatch(TabListAction.RemoveAllTabsAction())
+        store.dispatch(TabListAction.AddMultipleTabsAction(newTabs))
     }
 
     private fun <T> ViewBoundFeatureWrapper<T>.requestPermissions(

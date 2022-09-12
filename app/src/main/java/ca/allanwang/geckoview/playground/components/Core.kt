@@ -19,6 +19,7 @@ import mozilla.components.concept.engine.permission.SitePermissionsStorage
 import mozilla.components.concept.fetch.Client
 import mozilla.components.feature.app.links.AppLinksUseCases
 import mozilla.components.feature.contextmenu.ContextMenuUseCases
+import mozilla.components.feature.downloads.AbstractFetchDownloadService
 import mozilla.components.feature.downloads.DownloadMiddleware
 import mozilla.components.feature.downloads.DownloadsUseCases
 import mozilla.components.feature.prompts.PromptMiddleware
@@ -27,7 +28,6 @@ import mozilla.components.feature.sitepermissions.OnDiskSitePermissionsStorage
 import mozilla.components.feature.webnotifications.WebNotificationFeature
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
-import org.mozilla.thirdparty.com.google.android.exoplayer2.offline.DownloadService
 
 class Core(private val context: Context) {
     val runtime: GeckoRuntime by lazy {
@@ -65,7 +65,7 @@ class Core(private val context: Context) {
     val store: BrowserStore by lazy {
         BrowserStore(
             middleware = listOf(
-                DownloadMiddleware(context, DownloadService::class.java),
+//                DownloadMiddleware(context, DownloadService::class.java),
                 PromptMiddleware()
             ) + EngineMiddleware.create(engine)
         ).apply {

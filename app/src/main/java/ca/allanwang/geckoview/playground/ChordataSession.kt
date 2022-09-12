@@ -13,10 +13,6 @@ class ChordataSession @JvmOverloads constructor(
     init {
         super.setNavigationDelegate(object : NavigationDelegate {
 
-            override fun onLocationChange(session: GeckoSession, url: String?) {
-                _navigationDelegate?.onLocationChange(session, url)
-            }
-
             override fun onLocationChange(
                 session: GeckoSession,
                 url: String?,
