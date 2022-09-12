@@ -225,12 +225,12 @@ class ChordataFragment : Fragment() {
     companion object {
         private val logger = FluentLogger.forEnclosingClass()
 
-        private const val GITHUB_URL = "https://github.com/AllanWang"
-        private const val NOTIFICATION_DEMO_URL = "https://pushalert.co/demo"
-        private const val FACEBOOK_M_URL = "https://m.facebook.com"
-        private const val FACEBOOK_M_PUSH_URL =
+        const val GITHUB_URL = "https://github.com/AllanWang"
+        const val NOTIFICATION_DEMO_URL = "https://pushalert.co/demo"
+        const val FACEBOOK_M_URL = "https://m.facebook.com"
+        const val FACEBOOK_M_PUSH_URL =
             "https://m.facebook.com/settings/notifications/push/"
 
-        private const val DEFAULT_URL = FACEBOOK_M_PUSH_URL
+        const val DEFAULT_URL = FACEBOOK_M_PUSH_URL
     }
 }

@@ -1,4 +1,4 @@
-package ca.allanwang.geckoview.playground
+package ca.allanwang.geckoview.playground.chordata
 
 import org.mozilla.geckoview.*
 
