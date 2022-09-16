@@ -1,4 +1,4 @@
-package ca.allanwang.geckoview.playground
+package ca.allanwang.geckoview.playground.hilt
 
 import android.content.Context
 import com.google.common.flogger.FluentLogger
@@ -21,6 +21,7 @@ import mozilla.components.concept.engine.DefaultSettings
 import mozilla.components.concept.engine.Engine
 import mozilla.components.concept.engine.Settings
 import mozilla.components.concept.engine.permission.SitePermissionsStorage
+import mozilla.components.concept.engine.webextension.WebExtensionRuntime
 import mozilla.components.concept.fetch.Client
 import mozilla.components.feature.prompts.PromptMiddleware
 import mozilla.components.feature.sitepermissions.OnDiskSitePermissionsStorage

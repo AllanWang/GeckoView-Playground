@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ca.allanwang.geckoview.playground.ChordataComponents
+import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import ca.allanwang.geckoview.playground.components.UseCases
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

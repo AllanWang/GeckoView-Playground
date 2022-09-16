@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
+import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import dagger.hilt.android.AndroidEntryPoint
 import mozilla.components.concept.engine.EngineView
 import javax.inject.Inject

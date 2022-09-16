@@ -1,4 +1,4 @@
-package ca.allanwang.geckoview.playground
+package ca.allanwang.geckoview.playground.hilt
 
 import ca.allanwang.geckoview.playground.components.Core
 import ca.allanwang.geckoview.playground.components.UseCases

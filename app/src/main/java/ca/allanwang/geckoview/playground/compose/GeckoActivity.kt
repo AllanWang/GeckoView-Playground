@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
-import ca.allanwang.geckoview.playground.ChordataComponents
+import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 

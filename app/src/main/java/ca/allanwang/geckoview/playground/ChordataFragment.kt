@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import ca.allanwang.geckoview.playground.databinding.ChordataWebBinding
+import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import com.google.common.flogger.FluentLogger
 import dagger.hilt.android.AndroidEntryPoint
 import dagger.hilt.android.qualifiers.ApplicationContext
