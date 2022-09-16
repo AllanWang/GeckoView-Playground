@@ -82,7 +82,7 @@ class ChordataFragment : Fragment() {
     sessionFeature.set(
         SessionFeature(
             store = components.core.store,
-            goBackUseCase = components.useCases.sessionUseCases.goBack,
+            goBackUseCase = components.useCases.session.goBack,
             engineView = engineView,
             //                tabId = sessionId
             ))
@@ -94,10 +94,10 @@ class ChordataFragment : Fragment() {
         ToolbarFeature(
             toolbar = toolbar,
             store = components.core.store,
-            loadUrlUseCase = components.useCases.sessionUseCases.loadUrl))
+            loadUrlUseCase = components.useCases.session.loadUrl))
 
     components.core.store.dispatch(TabListAction.RemoveAllTabsAction(recoverable = false))
-    components.useCases.tabsUseCases.addTab(url = FACEBOOK_M_URL, contextId = sessionId)
+    components.useCases.tabs.addTab(url = FACEBOOK_M_URL, contextId = sessionId)
 
     promptFeature.set(
         PromptFeature(
@@ -111,7 +111,7 @@ class ChordataFragment : Fragment() {
     swipeRefreshFeature.set(
         SwipeRefreshFeature(
             store = components.core.store,
-            reloadUrlUseCase = components.useCases.sessionUseCases.reload,
+            reloadUrlUseCase = components.useCases.session.reload,
             swipeRefreshLayout = swipeRefresh))
 
     appLinksFeature.set(
@@ -121,7 +121,7 @@ class ChordataFragment : Fragment() {
                 store = components.core.store,
                 fragmentManager = parentFragmentManager,
                 launchInApp = { true },
-                loadUrlUseCase = components.useCases.sessionUseCases.loadUrl))
+                loadUrlUseCase = components.useCases.session.loadUrl))
 
     val sitePermissionsRules =
         SitePermissionsRules(
@@ -148,7 +148,7 @@ class ChordataFragment : Fragment() {
                 sitePermissionsRules = sitePermissionsRules,
                 store = components.core.store))
 
-    // components.useCases.sessionUseCases.loadUrl(DEFAULT_URL)
+    // components.useCases.session.loadUrl(DEFAULT_URL)
   }
 
   private fun TabsUseCases.switchSessionId(sessionId: String) {

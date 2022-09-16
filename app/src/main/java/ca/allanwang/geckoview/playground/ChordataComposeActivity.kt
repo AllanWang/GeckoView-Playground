@@ -11,11 +11,9 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ChordataComposeActivity : AppCompatActivity() {
 
-  @Inject internal lateinit var components: ChordataComponents
-
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    setContent { MaterialTheme { ChordataScreen(components) } }
+    setContent { MaterialTheme { ChordataScreen() } }
   }
 }

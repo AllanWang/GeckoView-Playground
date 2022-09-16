@@ -1,82 +1,36 @@
 package ca.allanwang.geckoview.playground.components
 
-import android.content.Context
-import ca.allanwang.geckoview.playground.BuildConfig
-import ca.allanwang.geckoview.playground.ChordataActivity
-import ca.allanwang.geckoview.playground.R
-import ca.allanwang.geckoview.playground.ensureGeckoTestBuiltIn
-import com.google.common.flogger.FluentLogger
-import mozilla.components.browser.engine.gecko.GeckoEngine
-import mozilla.components.browser.engine.gecko.fetch.GeckoViewFetchClient
-import mozilla.components.browser.engine.gecko.permission.GeckoSitePermissionsStorage
-import mozilla.components.browser.icons.BrowserIcons
+import javax.inject.Inject
+import javax.inject.Provider
+import javax.inject.Singleton
 import mozilla.components.browser.session.storage.SessionStorage
-import mozilla.components.browser.state.engine.EngineMiddleware
 import mozilla.components.browser.state.store.BrowserStore
-import mozilla.components.concept.engine.DefaultSettings
 import mozilla.components.concept.engine.Engine
 import mozilla.components.concept.engine.permission.SitePermissionsStorage
-import mozilla.components.concept.fetch.Client
-import mozilla.components.feature.prompts.PromptMiddleware
-import mozilla.components.feature.sitepermissions.OnDiskSitePermissionsStorage
-import mozilla.components.feature.webnotifications.WebNotificationFeature
 import org.mozilla.geckoview.GeckoRuntime
-import org.mozilla.geckoview.GeckoRuntimeSettings
 
-class Core(private val context: Context) {
-  val runtime: GeckoRuntime by lazy {
-    logger.atFine().log("Debug %b", BuildConfig.DEBUG)
+@Singleton
+class Core
+@Inject
+internal constructor(
+  private val runtimeProvider: Provider<GeckoRuntime>,
+  private val engineProvider: Provider<Engine>,
+  private val storeProvider: Provider<BrowserStore>,
+  private val sessionStorageProvider: Provider<SessionStorage>,
+  private val sitePermissionsStorageProvider: Provider<SitePermissionsStorage>,
+) {
+  val runtime: GeckoRuntime
+    get() = runtimeProvider.get()
 
-    val settings =
-        GeckoRuntimeSettings.Builder()
-            .consoleOutput(BuildConfig.DEBUG)
-            .debugLogging(BuildConfig.DEBUG)
-            .javaScriptEnabled(true)
-            .build()
+  val engine: Engine
+    get() = engineProvider.get()
 
-    val runtime = GeckoRuntime.create(context, settings)
-    runtime.webExtensionController
-        .ensureGeckoTestBuiltIn()
-        .accept(
-            { extension -> logger.atInfo().log("Extension loaded") },
-            { e -> logger.atWarning().withCause(e).log("Extension failed to load") })
-    runtime
-  }
+  val store: BrowserStore
+    get() = storeProvider.get()
 
-  val engineDefaultSettings: DefaultSettings by lazy { DefaultSettings() }
+  val sessionStorage: SessionStorage
+    get() = sessionStorageProvider.get()
 
-  val client: Client by lazy { GeckoViewFetchClient(context, runtime) }
-
-  val engine: Engine by lazy { GeckoEngine(context, engineDefaultSettings, runtime) }
-
-  val icons by lazy { BrowserIcons(context, client) }
-
-  val store: BrowserStore by lazy {
-    BrowserStore(
-            middleware =
-                listOf(
-                    //                DownloadMiddleware(context, DownloadService::class.java),
-                    PromptMiddleware()) + EngineMiddleware.create(engine))
-        .apply {
-          icons.install(engine, this)
-
-          WebNotificationFeature(
-              context,
-              engine,
-              icons,
-              R.mipmap.ic_launcher_round,
-              sitePermissionsStorage,
-              ChordataActivity::class.java)
-        }
-  }
-
-  val sitePermissionsStorage: SitePermissionsStorage by lazy {
-    GeckoSitePermissionsStorage(runtime, OnDiskSitePermissionsStorage(context))
-  }
-
-  val sessionStorage: SessionStorage by lazy { SessionStorage(context, engine) }
-
-  companion object {
-    private val logger = FluentLogger.forEnclosingClass()
-  }
+  val sitePermissionsStorage: SitePermissionsStorage
+    get() = sitePermissionsStorageProvider.get()
 }
