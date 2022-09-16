@@ -14,7 +14,6 @@ import ca.allanwang.geckoview.playground.ChordataFragment
 import ca.allanwang.geckoview.playground.components.UseCases
 import mozilla.components.browser.state.helper.Target
 import mozilla.components.browser.state.store.BrowserStore
-import mozilla.components.compose.engine.WebContent
 import mozilla.components.concept.engine.Engine
 
 @Composable
@@ -40,10 +39,7 @@ fun MainScreen(
     TabRow(selectedTabIndex = tabIndex, indicator = {}) {
       listOf("A", "B").forEachIndexed { i, text ->
         val selected = tabIndex == i
-        Tab(
-          selected = selected,
-          onClick = { onTabSelect(i) }
-        ) {
+        Tab(selected = selected, onClick = { onTabSelect(i) }) {
           Text(
             modifier = Modifier.padding(16.dp),
             text = text,
@@ -55,6 +51,6 @@ fun MainScreen(
 
     // For tab switching, must use SelectedTab
     // https://github.com/mozilla-mobile/android-components/issues/12798
-    WebContent(engine = engine, store = store, target = Target.SelectedTab)
+    Chordata(engine = engine, store = store, target = Target.SelectedTab)
   }
 }
