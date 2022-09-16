@@ -1,6 +1,9 @@
 package ca.allanwang.geckoview.playground.hilt
 
 import android.content.Context
+import ca.allanwang.geckoview.playground.BuildConfig
+import ca.allanwang.geckoview.playground.ChordataActivity
+import ca.allanwang.geckoview.playground.R
 import com.google.common.flogger.FluentLogger
 import dagger.Module
 import dagger.Provides
@@ -107,7 +110,7 @@ object ChordataModule {
       next: (BrowserAction) -> Unit,
       action: BrowserAction
     ) {
-      logger.atInfo().log("BrowserAction: %s", action::class.simpleName)
+      logger.atFinest().log("BrowserAction: %s", action::class.simpleName)
       next(action)
     }
   }
