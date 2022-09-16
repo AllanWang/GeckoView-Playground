@@ -36,103 +36,95 @@ import kotlin.coroutines.suspendCoroutine
 @AndroidEntryPoint
 class ChordataFragment : Fragment() {
 
-    private var _binding: ChordataWebBinding? = null
-    private val binding: ChordataWebBinding get() = _binding!!
+  private var _binding: ChordataWebBinding? = null
+  private val binding: ChordataWebBinding
+    get() = _binding!!
 
-    @Inject
-    @ApplicationContext
-    internal lateinit var appContext: Context
+  @Inject @ApplicationContext internal lateinit var appContext: Context
 
-    @Inject
-    internal lateinit var components: ChordataComponents
+  @Inject internal lateinit var components: ChordataComponents
 
-    /*
-     * While these don't need to be wrapped; it could be useful once we move to fragments
-     */
-    private val sessionFeature = ViewBoundFeatureWrapper<SessionFeature>()
-    private val toolbarFeature = ViewBoundFeatureWrapper<ToolbarFeature>()
-    private val promptFeature = ViewBoundFeatureWrapper<PromptFeature>()
-    private val swipeRefreshFeature = ViewBoundFeatureWrapper<SwipeRefreshFeature>()
+  /*
+   * While these don't need to be wrapped; it could be useful once we move to fragments
+   */
+  private val sessionFeature = ViewBoundFeatureWrapper<SessionFeature>()
+  private val toolbarFeature = ViewBoundFeatureWrapper<ToolbarFeature>()
+  private val promptFeature = ViewBoundFeatureWrapper<PromptFeature>()
+  private val swipeRefreshFeature = ViewBoundFeatureWrapper<SwipeRefreshFeature>()
 
-    //    private val downloadsFeature = ViewBoundFeatureWrapper<DownloadsFeature>()
-    private val shareDownloadFeature = ViewBoundFeatureWrapper<ShareDownloadFeature>()
-    private val appLinksFeature = ViewBoundFeatureWrapper<AppLinksFeature>()
-    private var sitePermissionsFeature = ViewBoundFeatureWrapper<SitePermissionsFeature>()
+  //    private val downloadsFeature = ViewBoundFeatureWrapper<DownloadsFeature>()
+  private val shareDownloadFeature = ViewBoundFeatureWrapper<ShareDownloadFeature>()
+  private val appLinksFeature = ViewBoundFeatureWrapper<AppLinksFeature>()
+  private var sitePermissionsFeature = ViewBoundFeatureWrapper<SitePermissionsFeature>()
 
-    override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        _binding = ChordataWebBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+  override fun onCreateView(
+      inflater: LayoutInflater,
+      container: ViewGroup?,
+      savedInstanceState: Bundle?
+  ): View? {
+    _binding = ChordataWebBinding.inflate(inflater, container, false)
+    return binding.root
+  }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.init()
-    }
+  override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+    binding.init()
+  }
 
-    private fun <T : LifecycleAwareFeature> ViewBoundFeatureWrapper<T>.set(feature: T) {
-        set(feature, this@ChordataFragment, binding.root)
-    }
+  private fun <T : LifecycleAwareFeature> ViewBoundFeatureWrapper<T>.set(feature: T) {
+    set(feature, this@ChordataFragment, binding.root)
+  }
 
-    @SuppressLint("WrongThread")
-    private fun ChordataWebBinding.init() {
+  @SuppressLint("WrongThread")
+  private fun ChordataWebBinding.init() {
 
-        var sessionId = "a"
+    var sessionId = "context1"
 
-        sessionFeature.set(
-            SessionFeature(
-                store = components.core.store,
-                goBackUseCase = components.useCases.sessionUseCases.goBack,
-                engineView = engineView,
-                tabId = sessionId
-            )
-        )
+    sessionFeature.set(
+        SessionFeature(
+            store = components.core.store,
+            goBackUseCase = components.useCases.sessionUseCases.goBack,
+            engineView = engineView,
+            //                tabId = sessionId
+            ))
 
-        val tabs = components.core.store.state.tabs.map { it.content.url to it.contextId }
-        logger.atInfo().log("Tabs %s", tabs)
+    val tabs = components.core.store.state.tabs.map { it.content.url to it.contextId }
+    logger.atInfo().log("Tabs %s", tabs)
 
-        toolbarFeature.set(
-            ToolbarFeature(
-                toolbar = toolbar,
-                store = components.core.store,
-                loadUrlUseCase = components.useCases.sessionUseCases.loadUrl
-            )
-        )
+    toolbarFeature.set(
+        ToolbarFeature(
+            toolbar = toolbar,
+            store = components.core.store,
+            loadUrlUseCase = components.useCases.sessionUseCases.loadUrl))
 
-        promptFeature.set(
-            PromptFeature(
-                fragment = this@ChordataFragment,
-                store = components.core.store,
-                fragmentManager = parentFragmentManager,
-                onNeedToRequestPermissions = { permissions ->
-                    promptFeature.requestPermissions(permissions)
-                }
-            )
-        )
+    components.core.store.dispatch(TabListAction.RemoveAllTabsAction(recoverable = false))
+    components.useCases.tabsUseCases.addTab(url = FACEBOOK_M_URL, contextId = sessionId)
 
-        components.useCases.sessionUseCases.loadUrl
+    promptFeature.set(
+        PromptFeature(
+            fragment = this@ChordataFragment,
+            store = components.core.store,
+            fragmentManager = parentFragmentManager,
+            onNeedToRequestPermissions = { permissions ->
+              promptFeature.requestPermissions(permissions)
+            }))
 
-        swipeRefreshFeature.set(
-            SwipeRefreshFeature(
-                store = components.core.store,
-                reloadUrlUseCase = components.useCases.sessionUseCases.reload,
-                swipeRefreshLayout = swipeRefresh
-            )
-        )
+    swipeRefreshFeature.set(
+        SwipeRefreshFeature(
+            store = components.core.store,
+            reloadUrlUseCase = components.useCases.sessionUseCases.reload,
+            swipeRefreshLayout = swipeRefresh))
 
-        appLinksFeature.set(
-            feature = AppLinksFeature(
+    appLinksFeature.set(
+        feature =
+            AppLinksFeature(
                 appContext,
                 store = components.core.store,
                 fragmentManager = parentFragmentManager,
                 launchInApp = { true },
-                loadUrlUseCase = components.useCases.sessionUseCases.loadUrl
-            )
-        )
+                loadUrlUseCase = components.useCases.sessionUseCases.loadUrl))
 
-        val sitePermissionsRules = SitePermissionsRules(
+    val sitePermissionsRules =
+        SitePermissionsRules(
             notification = SitePermissionsRules.Action.ASK_TO_ALLOW,
             microphone = SitePermissionsRules.Action.ASK_TO_ALLOW,
             location = SitePermissionsRules.Action.ASK_TO_ALLOW,
@@ -141,96 +133,93 @@ class ChordataFragment : Fragment() {
             autoplayInaudible = SitePermissionsRules.AutoplayAction.ALLOWED,
             persistentStorage = SitePermissionsRules.Action.BLOCKED,
             mediaKeySystemAccess = SitePermissionsRules.Action.BLOCKED,
-            crossOriginStorageAccess = SitePermissionsRules.Action.BLOCKED,
+            crossOriginStorageAccess = SitePermissionsRules.Action.ASK_TO_ALLOW,
         )
-        sitePermissionsFeature.set(
-            feature = SitePermissionsFeature(
+    sitePermissionsFeature.set(
+        feature =
+            SitePermissionsFeature(
                 context = appContext,
                 fragmentManager = parentFragmentManager,
                 storage = components.core.sitePermissionsStorage,
                 onNeedToRequestPermissions = { permissions ->
-                    sitePermissionsFeature.requestPermissions(permissions)
+                  sitePermissionsFeature.requestPermissions(permissions)
                 },
-                onShouldShowRequestPermissionRationale = {
-                    true
-                },
+                onShouldShowRequestPermissionRationale = { true },
                 sitePermissionsRules = sitePermissionsRules,
-                store = components.core.store
-            )
-        )
+                store = components.core.store))
 
-        // components.useCases.sessionUseCases.loadUrl(DEFAULT_URL)
+    // components.useCases.sessionUseCases.loadUrl(DEFAULT_URL)
+  }
+
+  private fun TabsUseCases.switchSessionId(sessionId: String) {
+    val store = components.core.store
+    val newTabs = store.state.tabs.map { it.copy(contextId = sessionId) }
+    store.dispatch(TabListAction.RemoveAllTabsAction())
+    store.dispatch(TabListAction.AddMultipleTabsAction(newTabs))
+  }
+
+  private fun <T> ViewBoundFeatureWrapper<T>.requestPermissions(permissions: Array<String>) where
+  T : LifecycleAwareFeature,
+  T : PermissionsFeature {
+    get() ?: return
+    val context = view?.context ?: return
+    viewLifecycleOwner.lifecycleScope.launch {
+      val results = requestPermissions(context, permissions)
+      get()
+          ?.onPermissionsResult(
+              permissions,
+              permissions
+                  .map {
+                    if (results[it] == true) PackageManager.PERMISSION_GRANTED
+                    else PackageManager.PERMISSION_DENIED
+                  }
+                  .toIntArray())
     }
+  }
 
-    private fun TabsUseCases.switchSessionId(sessionId: String) {
-        val store = components.core.store
-        val newTabs = store.state.tabs.map { it.copy(contextId = sessionId) }
-        store.dispatch(TabListAction.RemoveAllTabsAction())
-        store.dispatch(TabListAction.AddMultipleTabsAction(newTabs))
-    }
-
-    private fun <T> ViewBoundFeatureWrapper<T>.requestPermissions(
-        permissions: Array<String>
-    ) where T : LifecycleAwareFeature, T : PermissionsFeature {
-        get() ?: return
-        val context = view?.context ?: return
-        viewLifecycleOwner.lifecycleScope.launch {
-            val results = requestPermissions(context, permissions)
-            get()?.onPermissionsResult(permissions,
-                permissions.map { if (results[it] == true) PackageManager.PERMISSION_GRANTED else PackageManager.PERMISSION_DENIED }
-                    .toIntArray()
-            )
+  /** Upon request, returns a map of previously missing permissions to their respective results. */
+  private suspend fun requestPermissions(
+      context: Context,
+      permissions: Array<String>
+  ): Map<String, Boolean> {
+    val missingPermissions: List<String> =
+        permissions.filter {
+          ContextCompat.checkSelfPermission(context, it) != PackageManager.PERMISSION_GRANTED
         }
+    if (missingPermissions.isEmpty()) return emptyMap()
+
+    return suspendCoroutine { continuation ->
+      val requestPermissionLauncher =
+          registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {
+              permissionsResult: Map<String, Boolean> ->
+            continuation.resume(permissionsResult)
+          }
+      requestPermissionLauncher.launch(missingPermissions.toTypedArray())
     }
+  }
 
-    /**
-     * Upon request, returns a map of previously missing permissions to their respective results.
-     */
-    private suspend fun requestPermissions(
-        context: Context,
-        permissions: Array<String>
-    ): Map<String, Boolean> {
-        val missingPermissions: List<String> = permissions
-            .filter {
-                ContextCompat.checkSelfPermission(
-                    context,
-                    it
-                ) != PackageManager.PERMISSION_GRANTED
-            }
-        if (missingPermissions.isEmpty()) return emptyMap()
+  fun onBackPressed(): Boolean {
+    logger.atInfo().log("Toolbar back")
+    if (toolbarFeature.onBackPressed()) return true
+    logger.atInfo().log("Session back")
+    if (sessionFeature.onBackPressed()) return true
+    logger.atInfo().log("Super back")
+    return false
+  }
 
-        return suspendCoroutine { continuation ->
-            val requestPermissionLauncher =
-                registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissionsResult: Map<String, Boolean> ->
-                    continuation.resume(permissionsResult)
-                }
-            requestPermissionLauncher.launch(missingPermissions.toTypedArray())
-        }
-    }
+  override fun onDestroyView() {
+    super.onDestroyView()
+    _binding = null
+  }
 
-    fun onBackPressed(): Boolean {
-        logger.atInfo().log("Toolbar back")
-        if (toolbarFeature.onBackPressed()) return true
-        logger.atInfo().log("Session back")
-        if (sessionFeature.onBackPressed()) return true
-        logger.atInfo().log("Super back")
-        return false
-    }
+  companion object {
+    private val logger = FluentLogger.forEnclosingClass()
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        _binding = null
-    }
+    const val GITHUB_URL = "https://github.com/AllanWang"
+    const val NOTIFICATION_DEMO_URL = "https://pushalert.co/demo"
+    const val FACEBOOK_M_URL = "https://m.facebook.com"
+    const val FACEBOOK_M_PUSH_URL = "https://m.facebook.com/settings/notifications/push/"
 
-    companion object {
-        private val logger = FluentLogger.forEnclosingClass()
-
-        const val GITHUB_URL = "https://github.com/AllanWang"
-        const val NOTIFICATION_DEMO_URL = "https://pushalert.co/demo"
-        const val FACEBOOK_M_URL = "https://m.facebook.com"
-        const val FACEBOOK_M_PUSH_URL =
-            "https://m.facebook.com/settings/notifications/push/"
-
-        const val DEFAULT_URL = FACEBOOK_M_PUSH_URL
-    }
+    const val DEFAULT_URL = FACEBOOK_M_PUSH_URL
+  }
 }

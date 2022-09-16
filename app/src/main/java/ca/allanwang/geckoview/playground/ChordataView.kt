@@ -9,11 +9,5 @@ import org.mozilla.geckoview.GeckoView
  *
  * Chordata is the phylum that includes geckos.
  */
-class ChordataView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null
-) : GeckoView(context, attrs) {
-
-
-
-}
+class ChordataView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) :
+    GeckoView(context, attrs) {}

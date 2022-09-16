@@ -15,15 +15,13 @@ import javax.inject.Singleton
  * https://github.com/mozilla-mobile/focus-android/blob/main/app/src/main/java/org/mozilla/focus/Components.kt
  */
 @Singleton
-class ChordataComponents @Inject constructor(
-    @ApplicationContext context: Context
-) {
+class ChordataComponents @Inject constructor(@ApplicationContext context: Context) {
 
-    val core: Core by lazy { Core(context) }
+  val core: Core by lazy { Core(context) }
 
-    val useCases: UseCases by lazy { UseCases(context, core) }
+  val useCases: UseCases by lazy { UseCases(context, core) }
 
-    companion object {
-        private val logger = FluentLogger.forEnclosingClass()
-    }
+  companion object {
+    private val logger = FluentLogger.forEnclosingClass()
+  }
 }

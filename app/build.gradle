@@ -116,6 +116,9 @@ dependencies {
 
     implementation "org.mozilla.components:ui-autocomplete:${mozillaAndroidComponents}"
 
+    implementation "org.mozilla.components:compose-engine:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:lib-state:${mozillaAndroidComponents}"
+
     // Compose
     def composeVersion = "1.2.1"
 

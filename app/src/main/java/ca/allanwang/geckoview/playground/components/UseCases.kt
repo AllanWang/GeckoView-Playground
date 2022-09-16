@@ -9,20 +9,21 @@ import mozilla.components.feature.session.SessionUseCases
 import mozilla.components.feature.tabs.TabsUseCases
 
 class UseCases(private val context: Context, private val core: Core) {
-    
-    private val store get() = core.store
-    
-    val sessionUseCases: SessionUseCases by lazy { SessionUseCases(store) }
 
-    val tabsUseCases: TabsUseCases by lazy { TabsUseCases(store) }
+  private val store
+    get() = core.store
 
-    val contextMenuUseCases: ContextMenuUseCases by lazy { ContextMenuUseCases(store) }
+  val sessionUseCases: SessionUseCases by lazy { SessionUseCases(store) }
 
-    val downloadsUseCases: DownloadsUseCases by lazy { DownloadsUseCases(store) }
+  val tabsUseCases: TabsUseCases by lazy { TabsUseCases(store) }
 
-    val appLinksUseCases: AppLinksUseCases by lazy { AppLinksUseCases(context) }
+  val contextMenuUseCases: ContextMenuUseCases by lazy { ContextMenuUseCases(store) }
 
-    companion object {
-        private val logger = FluentLogger.forEnclosingClass()
-    }
+  val downloadsUseCases: DownloadsUseCases by lazy { DownloadsUseCases(store) }
+
+  val appLinksUseCases: AppLinksUseCases by lazy { AppLinksUseCases(context) }
+
+  companion object {
+    private val logger = FluentLogger.forEnclosingClass()
+  }
 }

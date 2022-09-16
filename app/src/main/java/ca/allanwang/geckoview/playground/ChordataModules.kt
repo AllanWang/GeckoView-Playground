@@ -10,12 +10,8 @@ import org.mozilla.geckoview.WebExtensionController
 @InstallIn(SingletonComponent::class)
 object ChordataModules {
 
-    private val logger = FluentLogger.forEnclosingClass()
-
-
+  private val logger = FluentLogger.forEnclosingClass()
 }
 
-fun WebExtensionController.ensureGeckoTestBuiltIn() = ensureBuiltIn(
-    "resource://android/assets/geckotest/",
-    "geckoview_chordata_test@pitchedapps"
-)
+fun WebExtensionController.ensureGeckoTestBuiltIn() =
+    ensureBuiltIn("resource://android/assets/geckotest/", "geckoview_chordata_test@pitchedapps")

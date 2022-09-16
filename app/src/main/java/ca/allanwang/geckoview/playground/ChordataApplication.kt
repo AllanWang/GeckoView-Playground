@@ -15,57 +15,56 @@ import javax.inject.Inject
 @HiltAndroidApp
 class ChordataApplication : Application() {
 
-    @Inject
-    internal lateinit var components: ChordataComponents
+  @Inject internal lateinit var components: ChordataComponents
 
-    override fun onCreate() {
-        super.onCreate()
+  override fun onCreate() {
+    super.onCreate()
 
-        setupLogging()
+    setupLogging()
 
-        // Do not run for child processes spawned by Gecko
-        if (!isMainProcess()) return
+    // Do not run for child processes spawned by Gecko
+    if (!isMainProcess()) return
 
-        components.core.engine.warmUp()
+    components.core.engine.warmUp()
 
-        restoreBrowserState()
+    restoreBrowserState()
 
-        WebExtensionSupport.initialize(
-            runtime = components.core.engine,
-            store = components.core.store,
-            onNewTabOverride = { _, engineSession, url ->
-                val tabId = components.useCases.tabsUseCases.addTab(
-                    url = url,
-                    selectTab = true,
-                    engineSession = engineSession
-                )
-                tabId
-            },
-            onCloseTabOverride = { _, sessionId ->
-                components.useCases.tabsUseCases.removeTab(sessionId)
-            },
-            onSelectTabOverride = { _, sessionId ->
-                components.useCases.tabsUseCases.selectTab(sessionId)
-            },
-        )
-    }
+    WebExtensionSupport.initialize(
+        runtime = components.core.engine,
+        store = components.core.store,
+        onNewTabOverride = { _, engineSession, url ->
+          val tabId =
+              components.useCases.tabsUseCases.addTab(
+                  url = url, selectTab = true, engineSession = engineSession)
+          tabId
+        },
+        onCloseTabOverride = { _, sessionId ->
+          components.useCases.tabsUseCases.removeTab(sessionId)
+        },
+        onSelectTabOverride = { _, sessionId ->
+          components.useCases.tabsUseCases.selectTab(sessionId)
+        },
+    )
+  }
 
-    private fun setupLogging() {
-        Log.addSink(AndroidLogSink())
-    }
+  private fun setupLogging() {
+    Log.addSink(AndroidLogSink())
+  }
 
-
-    private fun restoreBrowserState() = GlobalScope.launch(Dispatchers.Main) {
+  private fun restoreBrowserState() =
+      GlobalScope.launch(Dispatchers.Main) {
         val store = components.core.store
         val sessionStorage = components.core.sessionStorage
 
         components.useCases.tabsUseCases.restore(sessionStorage)
 
-        // Now that we have restored our previous state (if there's one) let's setup auto saving the state while
+        // Now that we have restored our previous state (if there's one) let's setup auto saving the
+        // state while
         // the app is used.
-        sessionStorage.autoSave(store)
+        sessionStorage
+            .autoSave(store)
             .periodicallyInForeground(interval = 30, unit = TimeUnit.SECONDS)
             .whenGoingToBackground()
             .whenSessionsChange()
-    }
+      }
 }

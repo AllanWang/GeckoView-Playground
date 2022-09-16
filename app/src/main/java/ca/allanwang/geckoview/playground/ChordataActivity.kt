@@ -12,26 +12,26 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ChordataActivity : AppCompatActivity() {
 
-    @Inject
-    internal lateinit var components: ChordataComponents
+  @Inject internal lateinit var components: ChordataComponents
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        supportFragmentManager.beginTransaction()
-            .replace(android.R.id.content, ChordataFragment())
-            .commit()
-    }
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    supportFragmentManager
+        .beginTransaction()
+        .replace(android.R.id.content, ChordataFragment())
+        .commit()
+  }
 
-    override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
-        return if (name == EngineView::class.java.name)
-            components.core.engine.createView(context, attrs).asView()
-        else
-            super.onCreateView(name, context, attrs)
-    }
+  override fun onCreateView(name: String, context: Context, attrs: AttributeSet): View? {
+    return if (name == EngineView::class.java.name)
+        components.core.engine.createView(context, attrs).asView()
+    else super.onCreateView(name, context, attrs)
+  }
 
-    override fun onBackPressed() {
-        if ((supportFragmentManager.findFragmentById(android.R.id.content) as? ChordataFragment)?.onBackPressed() == true)
-            return
-        super.onBackPressed()
-    }
+  override fun onBackPressed() {
+    if ((supportFragmentManager.findFragmentById(android.R.id.content) as? ChordataFragment)
+        ?.onBackPressed() == true)
+        return
+    super.onBackPressed()
+  }
 }
