@@ -43,6 +43,9 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    sourceSets {
+        main.assets.srcDirs += ['../webextension/assets']
+    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -107,6 +110,7 @@ dependencies {
     implementation "org.mozilla.components:concept-toolbar:${mozillaAndroidComponents}"
 
     implementation "org.mozilla.components:feature-app-links:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-addons:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-autofill:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-awesomebar:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-contextmenu:${mozillaAndroidComponents}"

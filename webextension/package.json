@@ -1,0 +1,17 @@
+{
+  "scripts": {
+    "compile": "tsc -p tsconfig.json && sass --no-source-map --style compressed --update scss:assets/geckotest/css",
+    "scss-watch": "sass --no-source-map --style compressed --update scss:assets/geckotest/css --watch"
+  },
+  "license": "MPL-2.0",
+  "repository": {
+    "url": "https://github.com/AllanWang/GeckoView-Playground"
+  },
+  "dependencies": {
+    "@types/firefox-webext-browser": "^94.0.1",
+    "compile": "0.0.2",
+    "run": "^1.4.0",
+    "sass": "^1.54.9",
+    "typescript": "^4.8.3"
+  }
+}

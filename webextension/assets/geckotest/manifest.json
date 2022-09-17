@@ -1,0 +1,35 @@
+{
+    "manifest_version": 2,
+    "name": "geckotest",
+    "version": "1.0",
+    "description": "Example messaging web extension.",
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "geckoview_chordata_test@pitchedapps"
+        }
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "js/chordata.js",
+                "js/messaging.js"
+            ]
+        },
+        {
+            "matches": [
+                "*://*.facebook.com/*"
+            ],
+            "js": [
+                "js/click_a.js"
+            ]
+        }
+    ],
+    "permissions": [
+        "nativeMessaging",
+        "nativeMessagingFromContent",
+        "geckoViewAddons"
+    ]
+}

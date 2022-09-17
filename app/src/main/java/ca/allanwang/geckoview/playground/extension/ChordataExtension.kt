@@ -79,7 +79,26 @@ class ChordataExtension(
   private class ChordataMessageHandler(private val converter: ExtensionModelConverter) :
     MessageHandler {
     override fun onMessage(message: Any, source: EngineSession?): Any? {
-      logger.atFine().log("onMessage: %s", message)
+      if (message is String) {
+        logger.atFine().log("onMessage: %s", message)
+        return null
+      }
+      val model = converter.fromJSONObject(message as? JSONObject)
+      if (model == null) {
+        logger.atWarning().log("onMessage - unexpected format: %s", message)
+        return null
+      }
+      logger.atFine().log("onMessage: %s", model)
+      when (model) {
+        is UrlClick -> {
+          logger.atInfo().log("Url click ${model.url}")
+          return false
+        }
+        else -> {
+          logger.atWarning().log("onMessage - unhandled: %s", model)
+        }
+      }
+
       return null
     }
 
