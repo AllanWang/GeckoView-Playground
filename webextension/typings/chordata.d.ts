@@ -1,0 +1,4 @@
+type ExtensionType = {
+    type: string
+}
+
