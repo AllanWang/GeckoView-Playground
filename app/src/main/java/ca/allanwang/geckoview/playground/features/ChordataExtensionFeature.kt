@@ -32,6 +32,7 @@ class ChordataExtensionFeature(
   private var scope: CoroutineScope? = null
 
   override fun start() {
+    logger.atInfo().log("start")
     val messageHandler = ChordataBackgroundMessageHandler()
     extensionController.registerBackgroundMessageHandler(
       messageHandler,
@@ -72,13 +73,12 @@ class ChordataExtensionFeature(
 
   private class ChordataMessageHandler : MessageHandler {
     override fun onMessage(message: Any, source: EngineSession?): Any? {
-      logger.atInfo().log("hello message handler message %s", message)
-      return "Message request received: $message"
+      logger.atFine().log("onMessage: %s", message)
+      return null
     }
 
     override fun onPortMessage(message: Any, port: Port) {
-      logger.atInfo().log("hello message handler port message %s", message)
-      port.postMessage(JSONObject().put("text", "Port message received: $message"))
+      logger.atFine().log("onPortMessage: %s", message)
     }
   }
 
