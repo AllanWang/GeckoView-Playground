@@ -1,0 +1,7 @@
+@use 'vars';
+
+.chordata-test {
+    body {
+        background-color: var(--chordata-background-color);
+    }
+}
