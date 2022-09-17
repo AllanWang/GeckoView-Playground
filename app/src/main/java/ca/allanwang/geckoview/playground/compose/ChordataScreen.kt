@@ -1,13 +1,12 @@
 package ca.allanwang.geckoview.playground.compose
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import ca.allanwang.geckoview.playground.components.UseCases
+import ca.allanwang.geckoview.playground.extension.ChordataExtension
+import ca.allanwang.geckoview.playground.extension.ExtensionModelConverter
+import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import mozilla.components.browser.state.store.BrowserStore
@@ -20,7 +19,8 @@ internal constructor(
   val components: ChordataComponents,
   val engine: Engine,
   val store: BrowserStore,
-  val useCases: UseCases
+  val useCases: UseCases,
+  val extensionModelConverter: ExtensionModelConverter,
 ) : ViewModel() {
 
   val context1 = "context1"
@@ -36,6 +36,18 @@ internal constructor(
 fun ChordataScreen() {
   val vm: ChordataViewModel = viewModel()
 
+  DisposableEffect(vm.store) {
+    val feature =
+      ChordataExtension(
+        runtime = vm.engine,
+        store = vm.store,
+        converter = vm.extensionModelConverter,
+      )
+
+    feature.start()
+
+    onDispose { feature.stop() }
+  }
   MainScreen(
     engine = vm.engine,
     store = vm.store,
