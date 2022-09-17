@@ -54,10 +54,14 @@ fun ChordataScreen() {
     contextId = vm.contextId,
     useCases = vm.useCases,
     tabIndex = vm.tabIndex,
-    onTabSelect = {
-      vm.tabIndex = it
-      // Change? What if previous selected tab is not home tab
-      vm.useCases.homeTabs.selectHomeTab(it)
+    onTabSelect = { selectedIndex ->
+      if (selectedIndex == vm.tabIndex) {
+        vm.useCases.homeTabs.reloadTab(selectedIndex)
+      } else {
+        // Change? What if previous selected tab is not home tab
+        vm.useCases.homeTabs.selectHomeTab(selectedIndex)
+        vm.tabIndex = selectedIndex
+      }
     }
   )
 }

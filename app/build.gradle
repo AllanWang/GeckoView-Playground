@@ -110,6 +110,7 @@ dependencies {
     implementation "org.mozilla.components:concept-toolbar:${mozillaAndroidComponents}"
 
     implementation "org.mozilla.components:feature-app-links:${mozillaAndroidComponents}"
+    implementation "org.mozilla.components:feature-addons:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-autofill:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-awesomebar:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:feature-contextmenu:${mozillaAndroidComponents}"

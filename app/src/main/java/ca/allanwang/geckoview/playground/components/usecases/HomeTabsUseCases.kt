@@ -38,6 +38,10 @@ class HomeTabsUseCases @Inject internal constructor(private val store: BrowserSt
     store.dispatch(TabListAction.SelectTabAction(tabId(index)))
   }
 
+  fun reloadTab(index: Int) {
+    store.dispatch(EngineAction.ReloadAction(tabId(index)))
+  }
+
   private fun tabId(index: Int) = "$PREFIX--$index"
 
   companion object {
