@@ -4,7 +4,8 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ca.allanwang.geckoview.playground.components.UseCases
-import ca.allanwang.geckoview.playground.features.ChordataExtensionFeature
+import ca.allanwang.geckoview.playground.extension.ChordataExtension
+import ca.allanwang.geckoview.playground.extension.ExtensionModelConverter
 import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -18,7 +19,8 @@ internal constructor(
   val components: ChordataComponents,
   val engine: Engine,
   val store: BrowserStore,
-  val useCases: UseCases
+  val useCases: UseCases,
+  val extensionModelConverter: ExtensionModelConverter,
 ) : ViewModel() {
 
   val context1 = "context1"
@@ -36,9 +38,10 @@ fun ChordataScreen() {
 
   DisposableEffect(vm.store) {
     val feature =
-      ChordataExtensionFeature(
+      ChordataExtension(
         runtime = vm.engine,
         store = vm.store,
+        converter = vm.extensionModelConverter,
       )
 
     feature.start()

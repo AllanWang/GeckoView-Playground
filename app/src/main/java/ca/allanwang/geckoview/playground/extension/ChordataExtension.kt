@@ -1,4 +1,4 @@
-package ca.allanwang.geckoview.playground.features
+package ca.allanwang.geckoview.playground.extension
 
 import com.google.common.flogger.FluentLogger
 import kotlinx.coroutines.CoroutineScope
@@ -16,10 +16,16 @@ import mozilla.components.support.ktx.kotlinx.coroutines.flow.ifChanged
 import mozilla.components.support.webextensions.WebExtensionController
 import org.json.JSONObject
 
-class ChordataExtensionFeature(
+/**
+ * Structure based off of
+ *
+ * https://github.com/mozilla-mobile/android-components/blob/main/components/feature/accounts/src/main/java/mozilla/components/feature/accounts/FxaWebChannelFeature.kt
+ */
+class ChordataExtension(
   private val customTabSessionId: String? = null,
   private val runtime: WebExtensionRuntime,
   private val store: BrowserStore,
+  private val converter: ExtensionModelConverter,
 ) : LifecycleAwareFeature {
 
   private var extensionController =
@@ -60,25 +66,44 @@ class ChordataExtensionFeature(
   }
 
   private fun registerContentMessageHandler(engineSession: EngineSession) {
-    val messageHandler = ChordataMessageHandler()
+    val messageHandler = ChordataMessageHandler(converter)
     extensionController.registerContentMessageHandler(engineSession, messageHandler)
   }
 
   private class ChordataBackgroundMessageHandler : MessageHandler {
     override fun onPortConnected(port: Port) {
-      logger.atInfo().log("hello message handler connected %s", port.name())
-      port.postMessage(JSONObject().put("text", "hello world; background port connected"))
+      logger.atInfo().log("background onPortConnected: %s", port.name())
     }
   }
 
-  private class ChordataMessageHandler : MessageHandler {
+  private class ChordataMessageHandler(private val converter: ExtensionModelConverter) :
+    MessageHandler {
     override fun onMessage(message: Any, source: EngineSession?): Any? {
       logger.atFine().log("onMessage: %s", message)
       return null
     }
 
     override fun onPortMessage(message: Any, port: Port) {
-      logger.atFine().log("onPortMessage: %s", message)
+      if (message is String) {
+        logger.atFine().log("onPortMessage: %s", message)
+        return
+      }
+      val model = converter.fromJSONObject(message as? JSONObject)
+      if (model == null) {
+        logger.atWarning().log("onPortMessage - unexpected format: %s", message)
+        return
+      }
+      logger.atFine().log("onPortMessage: %s", model)
+      // TODO
+    }
+
+    private fun Port.postMessage(message: ExtensionModel) {
+      val json = converter.toJSONObject(message)
+      if (json == null) {
+        logger.atSevere().log("postMessage - unexpected format: %s", message)
+        return
+      }
+      postMessage(json)
     }
   }
 
