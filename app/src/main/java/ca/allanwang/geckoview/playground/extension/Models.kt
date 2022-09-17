@@ -11,10 +11,12 @@ import org.json.JSONObject
 
 object ExtensionType {
   const val TEST = "type-test"
+  const val URL_CLICK = "url-click"
 
   fun moshiFactory(): JsonAdapter.Factory {
     return PolymorphicJsonAdapterFactory.of(ExtensionModel::class.java, "type")
       .withSubtype(TestModel::class.java, TEST)
+      .withSubtype(UrlClick::class.java, URL_CLICK)
   }
 }
 
@@ -31,6 +33,8 @@ sealed interface ExtensionModel {
 
 @JsonClass(generateAdapter = true)
 data class TestModel(val message: String = "Test Model Message") : ExtensionModel
+
+@JsonClass(generateAdapter = true) data class UrlClick(val url: String) : ExtensionModel
 
 @OptIn(ExperimentalStdlibApi::class)
 @Singleton

@@ -9,15 +9,20 @@
     "module": "esnext",
     "moduleResolution": "node",
     "isolatedModules": false,
+    "lib": [
+      "ES2017",
+      "dom"
+    ],
     // Extras
     "strictNullChecks": true,
     "noImplicitAny": true,
     "allowUnreachableCode": true,
     "allowUnusedLabels": true,
     "removeComments": true,
-    "outDir": "assets/js"
+    "outDir": "assets/geckotest/js"
   },
   "include": [
-    "ts", "typings"
+    "ts",
+    "typings"
   ]
 }

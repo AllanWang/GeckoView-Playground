@@ -1,5 +1,7 @@
 declare namespace browser.runtime {
     interface Port {
-        postMessage: (i: string) => void;
+        postMessage: (message: string) => void;
+        postMessage: (message: ExtensionModel) => void;
     }
+    function sendNativeMessage(application: string, message: ExtensionModel): Promise<any>;
 }
