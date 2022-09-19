@@ -92,7 +92,7 @@ class ChordataExtension(
       when (model) {
         is UrlClick -> {
           logger.atInfo().log("Url click ${model.url}")
-          return false
+          return true
         }
         else -> {
           logger.atWarning().log("onMessage - unhandled: %s", model)

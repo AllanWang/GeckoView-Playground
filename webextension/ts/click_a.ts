@@ -75,6 +75,7 @@
             console.log("No element found");
             return
         }
+        // TODO cannot use await here; copy logic over here
         for (const h of handlers) {
             if (await h(e, target)) {
                 e.stopPropagation();

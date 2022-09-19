@@ -4,6 +4,7 @@ import android.content.Context
 import ca.allanwang.geckoview.playground.BuildConfig
 import ca.allanwang.geckoview.playground.ChordataActivity
 import ca.allanwang.geckoview.playground.R
+import ca.allanwang.geckoview.playground.components.usecases.HomeTabsUseCases
 import com.google.common.flogger.FluentLogger
 import dagger.Module
 import dagger.Provides
@@ -22,8 +23,10 @@ import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.engine.DefaultSettings
 import mozilla.components.concept.engine.Engine
+import mozilla.components.concept.engine.EngineSession
 import mozilla.components.concept.engine.Settings
 import mozilla.components.concept.engine.permission.SitePermissionsStorage
+import mozilla.components.concept.engine.request.RequestInterceptor
 import mozilla.components.concept.engine.webextension.WebExtensionRuntime
 import mozilla.components.concept.fetch.Client
 import mozilla.components.feature.prompts.PromptMiddleware
@@ -110,7 +113,7 @@ object ChordataModule {
       next: (BrowserAction) -> Unit,
       action: BrowserAction
     ) {
-      logger.atFinest().log("BrowserAction: %s", action::class.simpleName)
+      logger.atInfo().log("BrowserAction: %s", action::class.simpleName)
       next(action)
     }
   }
@@ -126,6 +129,7 @@ object ChordataModule {
 
     val middleware = buildList {
       if (BuildConfig.DEBUG) add(LoggerMiddleWare())
+      add(HomeTabsUseCases.HomeMiddleware())
       add(PromptMiddleware())
       //      add(DownloadMiddleware(context, DownloadService::class.java))
       addAll(EngineMiddleware.create(engine))
@@ -143,7 +147,7 @@ object ChordataModule {
     )
     return store
   }
-}
 
-fun WebExtensionController.ensureGeckoTestBuiltIn() =
-  ensureBuiltIn("resource://android/assets/geckotest/", "geckoview_chordata_test@pitchedapps")
+  private fun WebExtensionController.ensureGeckoTestBuiltIn() =
+    ensureBuiltIn("resource://android/assets/geckotest/", "geckoview_chordata_test@pitchedapps")
+}

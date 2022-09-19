@@ -5,6 +5,8 @@ import ca.allanwang.geckoview.playground.extension.ChordataAddOnManager
 import com.google.common.flogger.FluentLogger
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
+import java.util.logging.Level
+import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -77,7 +79,7 @@ class ChordataApplication : Application() {
         //      onSelectTabOverride = { _, sessionId -> tabsUseCases.selectTab(sessionId) },
         )
 
-//      installDefaultAddons()
+      //      installDefaultAddons()
     } catch (e: UnsupportedOperationException) {
       // Web extension support is only available for engine gecko
       logger.atSevere().withCause(e).log("Failed to initialize web extension support")

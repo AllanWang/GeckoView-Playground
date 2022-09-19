@@ -1,12 +1,19 @@
 package ca.allanwang.geckoview.playground.components.usecases
 
+import com.google.common.flogger.FluentLogger
 import javax.inject.Inject
 import javax.inject.Singleton
+import mozilla.components.browser.state.action.BrowserAction
+import mozilla.components.browser.state.action.ContentAction
 import mozilla.components.browser.state.action.EngineAction
 import mozilla.components.browser.state.action.TabListAction
+import mozilla.components.browser.state.selector.findTab
+import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.browser.state.state.createTab
 import mozilla.components.browser.state.store.BrowserStore
+import mozilla.components.lib.state.Middleware
+import mozilla.components.lib.state.MiddlewareContext
 
 @Singleton
 class HomeTabsUseCases @Inject internal constructor(private val store: BrowserStore) {
@@ -42,9 +49,38 @@ class HomeTabsUseCases @Inject internal constructor(private val store: BrowserSt
     store.dispatch(EngineAction.ReloadAction(tabId(index)))
   }
 
-  private fun tabId(index: Int) = "$PREFIX--$index"
+  // Cannot use injection
+  class HomeMiddleware : Middleware<BrowserState, BrowserAction> {
+    override fun invoke(
+      context: MiddlewareContext<BrowserState, BrowserAction>,
+      next: (BrowserAction) -> Unit,
+      action: BrowserAction
+    ) {
+//      if (action is ContentAction.UpdateUrlAction) {
+//        logger.atInfo().log("url update %s", action)
+//        action.sessionId
+//        return
+//      }
+      next(action)
+//      when (action) {
+//        is ContentAction.UpdateUrlAction -> {
+//          logger.atInfo().log("url update %s", action)
+//          action.sessionId
+//        }
+//        else -> next(action)
+//      }
+    }
+
+    companion object {
+      private val logger = FluentLogger.forEnclosingClass()
+    }
+  }
 
   companion object {
     private const val PREFIX = "gecko-playground-home"
+
+    private fun isHomeTab(id: String): Boolean = id.startsWith(PREFIX)
+
+    private fun tabId(index: Int) = "$PREFIX--$index"
   }
 }
