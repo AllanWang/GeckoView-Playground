@@ -1,12 +1,10 @@
 package ca.allanwang.geckoview.playground
 
-import android.app.Application
+import androidx.multidex.MultiDexApplication
 import ca.allanwang.geckoview.playground.extension.ChordataAddOnManager
 import com.google.common.flogger.FluentLogger
 import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
-import java.util.logging.Level
-import java.util.logging.Logger
 import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
@@ -27,7 +25,7 @@ import mozilla.components.support.ktx.android.content.isMainProcess
 import mozilla.components.support.webextensions.WebExtensionSupport
 
 @HiltAndroidApp
-class ChordataApplication : Application() {
+class ChordataApplication : MultiDexApplication() {
 
   @Inject internal lateinit var applicationHilt: Provider<ApplicationHilt>
 
@@ -36,13 +34,13 @@ class ChordataApplication : Application() {
   class ApplicationHilt
   @Inject
   internal constructor(
-    val engine: Engine,
-    val store: BrowserStore,
-    val sessionStorage: SessionStorage,
-    val tabsUseCases: TabsUseCases,
-    val addonUpdater: AddonUpdater,
-    val addonManager: AddonManager,
-    val chordataAddOnManager: ChordataAddOnManager,
+      val engine: Engine,
+      val store: BrowserStore,
+      val sessionStorage: SessionStorage,
+      val tabsUseCases: TabsUseCases,
+      val addonUpdater: AddonUpdater,
+      val addonManager: AddonManager,
+      val chordataAddOnManager: ChordataAddOnManager,
   )
 
   override fun onCreate() {
@@ -63,21 +61,20 @@ class ChordataApplication : Application() {
 
     try {
       GlobalAddonDependencyProvider.initialize(
-        addonManager,
-        addonUpdater,
-        onCrash = { logger.atSevere().withCause(it).log("GlobalAddonDependencyProvider crash") }
-      )
+          addonManager,
+          addonUpdater,
+          onCrash = { logger.atSevere().withCause(it).log("GlobalAddonDependencyProvider crash") })
       WebExtensionSupport.initialize(
-        runtime = engine,
-        store = store,
-        //      onNewTabOverride = { _, engineSession, url ->
-        //        val tabId = tabsUseCases.addTab(url = url, selectTab = true, engineSession =
-        // engineSession)
-        //        tabId
-        //      },
-        //      onCloseTabOverride = { _, sessionId -> tabsUseCases.removeTab(sessionId) },
-        //      onSelectTabOverride = { _, sessionId -> tabsUseCases.selectTab(sessionId) },
-        )
+          runtime = engine,
+          store = store,
+          //      onNewTabOverride = { _, engineSession, url ->
+          //        val tabId = tabsUseCases.addTab(url = url, selectTab = true, engineSession =
+          // engineSession)
+          //        tabId
+          //      },
+          //      onCloseTabOverride = { _, sessionId -> tabsUseCases.removeTab(sessionId) },
+          //      onSelectTabOverride = { _, sessionId -> tabsUseCases.selectTab(sessionId) },
+          )
 
       //      installDefaultAddons()
     } catch (e: UnsupportedOperationException) {
@@ -92,22 +89,22 @@ class ChordataApplication : Application() {
 
   @OptIn(DelicateCoroutinesApi::class)
   private fun ApplicationHilt.restoreBrowserState() =
-    GlobalScope.launch(Dispatchers.Main) {
-      tabsUseCases.restore(sessionStorage)
+      GlobalScope.launch(Dispatchers.Main) {
+        tabsUseCases.restore(sessionStorage)
 
-      // Now that we have restored our previous state (if there's one) let's setup auto saving the
-      // state while
-      // the app is used.
-      sessionStorage
-        .autoSave(store)
-        .periodicallyInForeground(interval = 30, unit = TimeUnit.SECONDS)
-        .whenGoingToBackground()
-        .whenSessionsChange()
-    }
+        // Now that we have restored our previous state (if there's one) let's setup auto saving the
+        // state while
+        // the app is used.
+        sessionStorage
+            .autoSave(store)
+            .periodicallyInForeground(interval = 30, unit = TimeUnit.SECONDS)
+            .whenGoingToBackground()
+            .whenSessionsChange()
+      }
 
   @OptIn(DelicateCoroutinesApi::class)
   private fun ApplicationHilt.installDefaultAddons() =
-    GlobalScope.launch(Dispatchers.Main) { chordataAddOnManager.installDarkReader() }
+      GlobalScope.launch(Dispatchers.Main) { chordataAddOnManager.installDarkReader() }
 
   companion object {
     private val logger = FluentLogger.forEnclosingClass()

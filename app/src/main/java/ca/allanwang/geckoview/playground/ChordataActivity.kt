@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.AttributeSet
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import dagger.hilt.android.AndroidEntryPoint
@@ -29,10 +30,4 @@ class ChordataActivity : AppCompatActivity() {
     else super.onCreateView(name, context, attrs)
   }
 
-  override fun onBackPressed() {
-    if ((supportFragmentManager.findFragmentById(android.R.id.content) as? ChordataFragment)
-        ?.onBackPressed() == true)
-        return
-    super.onBackPressed()
-  }
 }

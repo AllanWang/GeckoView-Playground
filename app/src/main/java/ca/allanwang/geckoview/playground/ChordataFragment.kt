@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -206,6 +207,19 @@ class ChordataFragment : Fragment() {
     if (sessionFeature.onBackPressed()) return true
     logger.atInfo().log("Super back")
     return false
+  }
+
+  override fun onAttach(context: Context) {
+    super.onAttach(context)
+    requireActivity().onBackPressedDispatcher.addCallback(this, object  : OnBackPressedCallback(enabled = true) {
+      override fun handleOnBackPressed() {
+        logger.atInfo().log("Toolbar back")
+        if (toolbarFeature.onBackPressed()) return
+        logger.atInfo().log("Session back")
+        if (sessionFeature.onBackPressed()) return
+        logger.atInfo().log("Super back")
+      }
+    })
   }
 
   override fun onDestroyView() {
