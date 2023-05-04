@@ -4,10 +4,8 @@ import com.google.common.flogger.FluentLogger
 import javax.inject.Inject
 import javax.inject.Singleton
 import mozilla.components.browser.state.action.BrowserAction
-import mozilla.components.browser.state.action.ContentAction
 import mozilla.components.browser.state.action.EngineAction
 import mozilla.components.browser.state.action.TabListAction
-import mozilla.components.browser.state.selector.findTab
 import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.browser.state.state.createTab
@@ -19,14 +17,14 @@ import mozilla.components.lib.state.MiddlewareContext
 class HomeTabsUseCases @Inject internal constructor(private val store: BrowserStore) {
 
   fun createHomeTabs(
-    contextId: String,
-    selectedIndex: Int,
-    urls: List<String>
+      contextId: String,
+      selectedIndex: Int,
+      urls: List<String>
   ): List<TabSessionState> {
     store.dispatch(TabListAction.RemoveAllTabsAction())
     if (urls.isEmpty()) return emptyList()
     val tabs =
-      urls.mapIndexed { i, url -> createTab(id = tabId(i), url = url, contextId = contextId) }
+        urls.mapIndexed { i, url -> createTab(id = tabId(i), url = url, contextId = contextId) }
     store.dispatch(TabListAction.AddMultipleTabsAction(tabs))
     // Preload all tabs
     for (tab in tabs) {
@@ -52,23 +50,23 @@ class HomeTabsUseCases @Inject internal constructor(private val store: BrowserSt
   // Cannot use injection
   class HomeMiddleware : Middleware<BrowserState, BrowserAction> {
     override fun invoke(
-      context: MiddlewareContext<BrowserState, BrowserAction>,
-      next: (BrowserAction) -> Unit,
-      action: BrowserAction
+        context: MiddlewareContext<BrowserState, BrowserAction>,
+        next: (BrowserAction) -> Unit,
+        action: BrowserAction
     ) {
-//      if (action is ContentAction.UpdateUrlAction) {
-//        logger.atInfo().log("url update %s", action)
-//        action.sessionId
-//        return
-//      }
+      //      if (action is ContentAction.UpdateUrlAction) {
+      //        logger.atInfo().log("url update %s", action)
+      //        action.sessionId
+      //        return
+      //      }
       next(action)
-//      when (action) {
-//        is ContentAction.UpdateUrlAction -> {
-//          logger.atInfo().log("url update %s", action)
-//          action.sessionId
-//        }
-//        else -> next(action)
-//      }
+      //      when (action) {
+      //        is ContentAction.UpdateUrlAction -> {
+      //          logger.atInfo().log("url update %s", action)
+      //          action.sessionId
+      //        }
+      //        else -> next(action)
+      //      }
     }
 
     companion object {

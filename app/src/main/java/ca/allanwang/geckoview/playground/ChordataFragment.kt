@@ -20,7 +20,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.launch
 import mozilla.components.browser.state.action.TabListAction
 import mozilla.components.feature.app.links.AppLinksFeature
-import mozilla.components.feature.downloads.share.ShareDownloadFeature
+import mozilla.components.feature.downloads.temporary.ShareDownloadFeature
 import mozilla.components.feature.prompts.PromptFeature
 import mozilla.components.feature.session.SessionFeature
 import mozilla.components.feature.session.SwipeRefreshFeature

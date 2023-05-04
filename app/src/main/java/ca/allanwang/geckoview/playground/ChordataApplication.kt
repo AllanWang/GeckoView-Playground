@@ -68,12 +68,15 @@ class ChordataApplication : MultiDexApplication() {
           runtime = engine,
           store = store,
           //      onNewTabOverride = { _, engineSession, url ->
-          //        val tabId = tabsUseCases.addTab(url = url, selectTab = true, engineSession =
+          //        val tabId = tabsUseCases.addTab(url = url, selectTab = true,
+          // engineSession =
           // engineSession)
           //        tabId
           //      },
-          //      onCloseTabOverride = { _, sessionId -> tabsUseCases.removeTab(sessionId) },
-          //      onSelectTabOverride = { _, sessionId -> tabsUseCases.selectTab(sessionId) },
+          //      onCloseTabOverride = { _, sessionId -> tabsUseCases.removeTab(sessionId)
+          // },
+          //      onSelectTabOverride = { _, sessionId -> tabsUseCases.selectTab(sessionId)
+          // },
           )
 
       //      installDefaultAddons()
@@ -90,7 +93,7 @@ class ChordataApplication : MultiDexApplication() {
   @OptIn(DelicateCoroutinesApi::class)
   private fun ApplicationHilt.restoreBrowserState() =
       GlobalScope.launch(Dispatchers.Main) {
-        tabsUseCases.restore(sessionStorage)
+        //        tabsUseCases.restore(sessionStorage)
 
         // Now that we have restored our previous state (if there's one) let's setup auto saving the
         // state while

@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import ca.allanwang.geckoview.playground.ChordataFragment.Companion.FACEBOOK_M_PUSH_URL
 import ca.allanwang.geckoview.playground.hilt.ChordataComponents
 import ca.allanwang.geckoview.playground.ChordataFragment.Companion.FACEBOOK_M_URL
 import ca.allanwang.geckoview.playground.ChordataFragment.Companion.GITHUB_URL
@@ -38,7 +39,7 @@ class GeckoViewModel(private val components: ChordataComponents) : ViewModel() {
       ChordataSession(
               GeckoSessionSettings.Builder()
                   .allowJavascript(true)
-                  .displayMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
+                  .userAgentMode(GeckoSessionSettings.USER_AGENT_MODE_DESKTOP)
                   .contextId(contextId)
                   .build())
           .apply {

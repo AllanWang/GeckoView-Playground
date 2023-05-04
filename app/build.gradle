@@ -58,6 +58,19 @@ android {
     namespace 'ca.allanwang.geckoview.playground'
 }
 
+// Select the Glean from GeckoView.
+// `service-sync-logins` requires Glean, which pulls in glean-native,
+// but that's also provided by geckoview-omni, so now we need to select which one to use.
+project.configurations.configureEach {
+    resolutionStrategy.capabilitiesResolution.withCapability("org.mozilla.telemetry:glean-native") {
+        def toBeSelected = candidates.find { it.id instanceof ModuleComponentIdentifier && it.id.module.contains('geckoview') }
+        if (toBeSelected != null) {
+            select(toBeSelected)
+        }
+        because 'use GeckoView Glean instead of standalone Glean'
+    }
+}
+
 dependencies {
 
     implementation "androidx.core:core-ktx:1.10.0"
@@ -99,7 +112,9 @@ dependencies {
 //    implementation "org.mozilla.geckoview:geckoview-${geckoviewChannel}:${geckoviewVersion}"
 
     // https://maven.mozilla.org/maven2/org/mozilla/components/browser-engine-gecko/maven-metadata.xml
-    def mozillaAndroidComponents = "105.0.5"
+    // https://github.com/mozilla-mobile/reference-browser/blob/master/buildSrc/src/main/java/AndroidComponents.kt
+    // https://nightly.maven.mozilla.org/maven2/org/mozilla/components/browser-engine-gecko/maven-metadata.xml
+    def mozillaAndroidComponents = "114.0.20230503040145"
 
     implementation "org.mozilla.components:browser-engine-gecko:${mozillaAndroidComponents}"
     implementation "org.mozilla.components:browser-domains:${mozillaAndroidComponents}"

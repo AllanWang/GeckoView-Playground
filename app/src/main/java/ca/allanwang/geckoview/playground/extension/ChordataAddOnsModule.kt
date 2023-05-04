@@ -15,6 +15,7 @@ import mozilla.components.feature.addons.AddonsProvider
 import mozilla.components.feature.addons.amo.AddonCollectionProvider
 import mozilla.components.feature.addons.update.AddonUpdater
 import mozilla.components.feature.addons.update.DefaultAddonUpdater
+import mozilla.components.support.base.android.NotificationsDelegate
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -34,8 +35,8 @@ object ChordataAddOnsModule {
 
   @Provides
   @Singleton
-  fun addonUpdater(@ApplicationContext context: Context): AddonUpdater {
-    return DefaultAddonUpdater(context)
+  fun addonUpdater(@ApplicationContext context: Context, notificationsDelegate: NotificationsDelegate): AddonUpdater {
+    return DefaultAddonUpdater(applicationContext = context, notificationsDelegate = notificationsDelegate)
   }
 
   @Provides

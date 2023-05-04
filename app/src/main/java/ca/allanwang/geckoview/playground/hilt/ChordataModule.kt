@@ -1,6 +1,7 @@
 package ca.allanwang.geckoview.playground.hilt
 
 import android.content.Context
+import androidx.core.app.NotificationManagerCompat
 import ca.allanwang.geckoview.playground.BuildConfig
 import ca.allanwang.geckoview.playground.ChordataActivity
 import ca.allanwang.geckoview.playground.R
@@ -18,22 +19,21 @@ import mozilla.components.browser.engine.gecko.permission.GeckoSitePermissionsSt
 import mozilla.components.browser.icons.BrowserIcons
 import mozilla.components.browser.session.storage.SessionStorage
 import mozilla.components.browser.state.action.BrowserAction
+import mozilla.components.browser.state.action.EngineAction
 import mozilla.components.browser.state.engine.EngineMiddleware
 import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.store.BrowserStore
 import mozilla.components.concept.engine.DefaultSettings
 import mozilla.components.concept.engine.Engine
-import mozilla.components.concept.engine.EngineSession
 import mozilla.components.concept.engine.Settings
 import mozilla.components.concept.engine.permission.SitePermissionsStorage
-import mozilla.components.concept.engine.request.RequestInterceptor
-import mozilla.components.concept.engine.webextension.WebExtensionRuntime
 import mozilla.components.concept.fetch.Client
 import mozilla.components.feature.prompts.PromptMiddleware
 import mozilla.components.feature.sitepermissions.OnDiskSitePermissionsStorage
 import mozilla.components.feature.webnotifications.WebNotificationFeature
 import mozilla.components.lib.state.Middleware
 import mozilla.components.lib.state.MiddlewareContext
+import mozilla.components.support.base.android.NotificationsDelegate
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.WebExtensionController
@@ -48,19 +48,18 @@ object ChordataModule {
   @Singleton
   fun geckoRuntime(@ApplicationContext context: Context): GeckoRuntime {
     val settings =
-      GeckoRuntimeSettings.Builder()
-        .consoleOutput(BuildConfig.DEBUG)
-        .debugLogging(BuildConfig.DEBUG)
-        .javaScriptEnabled(true)
-        .build()
+        GeckoRuntimeSettings.Builder()
+            .consoleOutput(BuildConfig.DEBUG)
+            .debugLogging(BuildConfig.DEBUG)
+            .javaScriptEnabled(true)
+            .build()
 
     val runtime = GeckoRuntime.create(context, settings)
     runtime.webExtensionController
-      .ensureGeckoTestBuiltIn()
-      .accept(
-        { logger.atInfo().log("Extension loaded") },
-        { e -> logger.atWarning().withCause(e).log("Extension failed to load") }
-      )
+        .ensureGeckoTestBuiltIn()
+        .accept(
+            { logger.atInfo().log("Extension loaded") },
+            { e -> logger.atWarning().withCause(e).log("Extension failed to load") })
     return runtime
   }
 
@@ -79,9 +78,9 @@ object ChordataModule {
   @Provides
   @Singleton
   fun engine(
-    @ApplicationContext context: Context,
-    settings: Settings,
-    runtime: GeckoRuntime
+      @ApplicationContext context: Context,
+      settings: Settings,
+      runtime: GeckoRuntime
   ): Engine {
     return GeckoEngine(context, settings, runtime)
   }
@@ -95,8 +94,8 @@ object ChordataModule {
   @Provides
   @Singleton
   fun sitePermissionStorage(
-    @ApplicationContext context: Context,
-    runtime: GeckoRuntime
+      @ApplicationContext context: Context,
+      runtime: GeckoRuntime
   ): SitePermissionsStorage {
     return GeckoSitePermissionsStorage(runtime, OnDiskSitePermissionsStorage(context))
   }
@@ -109,11 +108,15 @@ object ChordataModule {
 
   private class LoggerMiddleWare : Middleware<BrowserState, BrowserAction> {
     override fun invoke(
-      context: MiddlewareContext<BrowserState, BrowserAction>,
-      next: (BrowserAction) -> Unit,
-      action: BrowserAction
+        context: MiddlewareContext<BrowserState, BrowserAction>,
+        next: (BrowserAction) -> Unit,
+        action: BrowserAction
     ) {
-      logger.atInfo().log("BrowserAction: %s", action::class.simpleName)
+      if (action is EngineAction.LoadUrlAction) {
+        logger.atInfo().log("BrowserAction: LoadUrlAction %s", action.url)
+      } else {
+        logger.atInfo().log("BrowserAction: %s", action::class.simpleName)
+      }
       next(action)
     }
   }
@@ -121,10 +124,11 @@ object ChordataModule {
   @Provides
   @Singleton
   fun browserStore(
-    @ApplicationContext context: Context,
-    icons: BrowserIcons,
-    sitePermissionsStorage: SitePermissionsStorage,
-    engine: Engine
+      @ApplicationContext context: Context,
+      icons: BrowserIcons,
+      sitePermissionsStorage: SitePermissionsStorage,
+      engine: Engine,
+      notificationsDelegate: NotificationsDelegate,
   ): BrowserStore {
 
     val middleware = buildList {
@@ -138,16 +142,22 @@ object ChordataModule {
     val store = BrowserStore(middleware = middleware)
     icons.install(engine, store)
     WebNotificationFeature(
-      context,
-      engine,
-      icons,
-      R.mipmap.ic_launcher_round,
-      sitePermissionsStorage,
-      ChordataActivity::class.java
-    )
+        context = context,
+        engine = engine,
+        browserIcons = icons,
+        smallIcon = R.mipmap.ic_launcher_round,
+        sitePermissionsStorage = sitePermissionsStorage,
+        activityClass = ChordataActivity::class.java,
+        notificationsDelegate = notificationsDelegate)
     return store
   }
 
+  @Provides
+  @Singleton
+  fun notificationDelegate(@ApplicationContext context: Context): NotificationsDelegate {
+    return NotificationsDelegate(NotificationManagerCompat.from(context))
+  }
+
   private fun WebExtensionController.ensureGeckoTestBuiltIn() =
-    ensureBuiltIn("resource://android/assets/geckotest/", "geckoview_chordata_test@pitchedapps")
+      ensureBuiltIn("resource://android/assets/geckotest/", "geckoview_chordata_test@pitchedapps")
 }

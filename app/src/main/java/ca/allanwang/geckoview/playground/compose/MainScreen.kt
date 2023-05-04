@@ -27,19 +27,19 @@ import mozilla.components.concept.engine.Engine
 
 @Composable
 fun MainScreen(
-  engine: Engine,
-  store: BrowserStore,
-  contextId: String,
-  useCases: UseCases,
-  tabIndex: Int,
-  onTabSelect: (Int) -> Unit,
-  modifier: Modifier = Modifier
+    engine: Engine,
+    store: BrowserStore,
+    contextId: String,
+    useCases: UseCases,
+    tabIndex: Int,
+    onTabSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
   val tabItems = remember {
     listOf(
-      MainTabItem(title = "Title1", icon = Icons.Default.Add, url = FACEBOOK_M_URL),
-      MainTabItem(title = "Title2", icon = Icons.Default.BugReport, url = GITHUB_URL),
+        MainTabItem(title = "Title1", icon = Icons.Default.Add, url = FACEBOOK_M_URL),
+        MainTabItem(title = "Title2", icon = Icons.Default.BugReport, url = GITHUB_URL),
     )
   }
 
@@ -59,10 +59,10 @@ data class MainTabItem(val title: String, val icon: ImageVector, val url: String
 
 @Composable
 fun MainTabRow(
-  selectedIndex: Int,
-  items: List<MainTabItem>,
-  onTabSelect: (Int) -> Unit,
-  modifier: Modifier = Modifier
+    selectedIndex: Int,
+    items: List<MainTabItem>,
+    onTabSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
 ) {
   TabRow(modifier = modifier, selectedTabIndex = selectedIndex, indicator = {}) {
     items.forEachIndexed { i, item ->
@@ -78,8 +78,8 @@ fun MainTabRow(
 private fun MainTabItem(item: MainTabItem, selected: Boolean, modifier: Modifier = Modifier) {
   val alpha by animateFloatAsState(targetValue = if (selected) 1f else ContentAlpha.medium)
   Icon(
-    modifier = modifier.alpha(alpha),
-    contentDescription = item.title,
-    imageVector = item.icon,
+      modifier = modifier.alpha(alpha),
+      contentDescription = item.title,
+      imageVector = item.icon,
   )
 }
