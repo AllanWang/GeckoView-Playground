@@ -1,5 +1,6 @@
 package ca.allanwang.geckoview.playground.components.usecases
 
+import ca.allanwang.geckoview.playground.ChordataFragment.Companion.MESSENGER_URL
 import com.google.common.flogger.FluentLogger
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,6 +30,9 @@ class HomeTabsUseCases @Inject internal constructor(private val store: BrowserSt
     // Preload all tabs
     for (tab in tabs) {
       store.dispatch(EngineAction.LoadUrlAction(tab.id, tab.content.url))
+      if (tab.content.url == MESSENGER_URL) {
+//        store.dispatch(EngineAction.ToggleDesktopModeAction(tab.id, enable = true))
+      }
     }
     selectHomeTab(selectedIndex)
     return tabs

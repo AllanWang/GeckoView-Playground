@@ -91,7 +91,8 @@ class ChordataExtension(
       logger.atFine().log("onMessage: %s", model)
       when (model) {
         is UrlClick -> {
-          logger.atInfo().log("Url click ${model.url}")
+          logger.atInfo().log("UrlClick ${model.url}")
+
           return true
         }
         else -> {

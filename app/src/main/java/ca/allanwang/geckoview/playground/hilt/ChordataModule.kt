@@ -7,6 +7,7 @@ import ca.allanwang.geckoview.playground.ChordataActivity
 import ca.allanwang.geckoview.playground.R
 import ca.allanwang.geckoview.playground.components.usecases.HomeTabsUseCases
 import com.google.common.flogger.FluentLogger
+import dagger.BindsOptionalOf
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -37,12 +38,40 @@ import mozilla.components.support.base.android.NotificationsDelegate
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.WebExtensionController
+import java.util.Optional
+import javax.inject.Qualifier
+import kotlin.jvm.optionals.getOrNull
+
+
+@Qualifier
+annotation class Chordata
+@Module
+@InstallIn(SingletonComponent::class)
+interface ChordataBindModule {
+  @BindsOptionalOf
+  @Chordata
+  fun userAgent(): String
+}
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ChordataModule {
 
   private val logger = FluentLogger.forEnclosingClass()
+
+  /**
+   * Windows based user agent.
+   *
+   * Note that Facebook's mobile webpage for mobile user agents is completely different from the desktop ones.
+   * All elements become divs, so nothing can be queried. There is a new UI too, but it doesn't seem worth migrating all other logic over.
+   */
+  private const val USER_AGENT_WINDOWS = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/112.0"
+
+  private const val USER_AGENT_WINDOWS_FROST = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.90 Safari/537.36"
+  @Provides
+  @Singleton
+  @Chordata
+  fun userAgent(): String = USER_AGENT_WINDOWS_FROST
 
   @Provides
   @Singleton
@@ -71,8 +100,8 @@ object ChordataModule {
 
   @Provides
   @Singleton
-  fun settings(): Settings {
-    return DefaultSettings()
+  fun settings(@Chordata userAgent: Optional<String>): Settings {
+    return DefaultSettings(userAgentString = userAgent.getOrNull())
   }
 
   @Provides
@@ -115,7 +144,7 @@ object ChordataModule {
       if (action is EngineAction.LoadUrlAction) {
         logger.atInfo().log("BrowserAction: LoadUrlAction %s", action.url)
       } else {
-        logger.atInfo().log("BrowserAction: %s", action::class.simpleName)
+        logger.atInfo().log("BrowserAction: %s - %s", action::class.simpleName, action)
       }
       next(action)
     }

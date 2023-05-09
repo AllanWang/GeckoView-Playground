@@ -1,5 +1,6 @@
 package ca.allanwang.geckoview.playground.components
 
+import ca.allanwang.geckoview.playground.components.usecases.FloatingTabsUseCases
 import ca.allanwang.geckoview.playground.components.usecases.HomeTabsUseCases
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -18,4 +19,5 @@ internal constructor(
   val session: SessionUseCases,
   val tabs: TabsUseCases,
   val homeTabs: HomeTabsUseCases,
+  val floatingTabs: FloatingTabsUseCases,
 )

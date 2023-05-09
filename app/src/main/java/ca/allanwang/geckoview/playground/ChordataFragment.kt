@@ -234,6 +234,7 @@ class ChordataFragment : Fragment() {
     const val NOTIFICATION_DEMO_URL = "https://pushalert.co/demo"
     const val FACEBOOK_M_URL = "https://m.facebook.com"
     const val FACEBOOK_M_PUSH_URL = "https://m.facebook.com/settings/notifications/push/"
+    const val MESSENGER_URL = "https://www.messenger.com/"
 
     const val DEFAULT_URL = FACEBOOK_M_PUSH_URL
   }

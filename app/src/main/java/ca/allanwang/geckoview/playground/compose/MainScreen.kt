@@ -10,6 +10,7 @@ import androidx.compose.material.TabRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.Message
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import ca.allanwang.geckoview.playground.ChordataFragment.Companion.FACEBOOK_M_URL
 import ca.allanwang.geckoview.playground.ChordataFragment.Companion.GITHUB_URL
+import ca.allanwang.geckoview.playground.ChordataFragment.Companion.MESSENGER_URL
 import ca.allanwang.geckoview.playground.components.UseCases
 import mozilla.components.browser.state.helper.Target
 import mozilla.components.browser.state.store.BrowserStore
@@ -40,6 +42,7 @@ fun MainScreen(
     listOf(
         MainTabItem(title = "Title1", icon = Icons.Default.Add, url = FACEBOOK_M_URL),
         MainTabItem(title = "Title2", icon = Icons.Default.BugReport, url = GITHUB_URL),
+        MainTabItem(title = "Title3", icon = Icons.Default.Message, url = MESSENGER_URL),
     )
   }
 

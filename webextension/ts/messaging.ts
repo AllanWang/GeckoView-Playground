@@ -5,4 +5,3 @@ port.onMessage.addListener(response => {
     port.postMessage(`Hello world - Received: ${JSON.stringify(response)}`);
 });
 port.postMessage("Hello world 3 (port)");
-browser.runtime.sendNativeMessage
