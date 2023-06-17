@@ -28,7 +28,7 @@ class ChordataExtension(
   private val converter: ExtensionModelConverter,
 ) : LifecycleAwareFeature {
 
-  private var extensionController =
+  private val extensionController =
     WebExtensionController(
       WEB_CHANNEL_EXTENSION_ID,
       WEB_CHANNEL_EXTENSION_URL,
@@ -54,6 +54,7 @@ class ChordataExtension(
           .ifChanged { it.engineState.engineSession }
           .collect {
             it.engineState.engineSession?.let { engineSession ->
+              logger.atInfo().log("Register content message handler")
               registerContentMessageHandler(engineSession)
             }
           }
@@ -71,6 +72,12 @@ class ChordataExtension(
   }
 
   private class ChordataBackgroundMessageHandler : MessageHandler {
+
+    override fun onMessage(message: Any, source: EngineSession?): Any? {
+      logger.atInfo().log("onMessage: %s", message)
+      return null
+    }
+
     override fun onPortConnected(port: Port) {
       logger.atInfo().log("background onPortConnected: %s", port.name())
     }
@@ -80,7 +87,7 @@ class ChordataExtension(
     MessageHandler {
     override fun onMessage(message: Any, source: EngineSession?): Any? {
       if (message is String) {
-        logger.atFine().log("onMessage: %s", message)
+        logger.atInfo().log("onMessage: %s", message)
         return null
       }
       val model = converter.fromJSONObject(message as? JSONObject)
@@ -101,6 +108,11 @@ class ChordataExtension(
       }
 
       return null
+    }
+
+    override fun onPortConnected(port: Port) {
+      logger.atInfo().log("Port connectted")
+      super.onPortConnected(port)
     }
 
     override fun onPortMessage(message: Any, port: Port) {

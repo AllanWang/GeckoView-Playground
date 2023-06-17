@@ -1,5 +1,5 @@
 {
-    "manifest_version": 2,
+    "manifest_version": 3,
     "name": "geckotest",
     "version": "1.0",
     "description": "Example messaging web extension.",
@@ -7,6 +7,14 @@
         "gecko": {
             "id": "geckoview_chordata_test@pitchedapps"
         }
+    },
+    "host_permissions": [
+        "*://*.facebook.com/*"
+    ],
+    "background": {
+        "scripts": [
+            "background/cookies.js"
+        ]
     },
     "content_scripts": [
         {
@@ -28,8 +36,10 @@
         }
     ],
     "permissions": [
+        "cookies",
         "nativeMessaging",
         "nativeMessagingFromContent",
+        "mozillaAddons",
         "geckoViewAddons"
     ]
 }

@@ -6,6 +6,7 @@ import ca.allanwang.geckoview.playground.BuildConfig
 import ca.allanwang.geckoview.playground.ChordataActivity
 import ca.allanwang.geckoview.playground.R
 import ca.allanwang.geckoview.playground.components.usecases.HomeTabsUseCases
+import ca.allanwang.geckoview.playground.extension.ChordataExtension.Companion.WEB_CHANNEL_EXTENSION_ID
 import com.google.common.flogger.FluentLogger
 import dagger.BindsOptionalOf
 import dagger.Module
@@ -38,8 +39,10 @@ import mozilla.components.feature.webnotifications.WebNotificationFeature
 import mozilla.components.lib.state.Middleware
 import mozilla.components.lib.state.MiddlewareContext
 import mozilla.components.support.base.android.NotificationsDelegate
+import org.mozilla.geckoview.GeckoResult
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
+import org.mozilla.geckoview.WebExtension
 import org.mozilla.geckoview.WebExtensionController
 
 @Qualifier annotation class Chordata
@@ -77,17 +80,18 @@ object ChordataModule {
       GeckoRuntimeSettings.Builder()
         .consoleOutput(BuildConfig.DEBUG)
         .loginAutofillEnabled(true)
-        .debugLogging(BuildConfig.DEBUG)
+        .debugLogging(false)
+        //        .debugLogging(BuildConfig.DEBUG)
         .javaScriptEnabled(true)
         .build()
 
     val runtime = GeckoRuntime.create(context, settings)
-    runtime.webExtensionController
-      .ensureGeckoTestBuiltIn()
-      .accept(
-        { logger.atInfo().log("Extension loaded") },
-        { e -> logger.atWarning().withCause(e).log("Extension failed to load") }
-      )
+//    runtime.webExtensionController
+//      .ensureGeckoTestBuiltIn()
+//      .accept(
+//        { logger.atInfo().log("Extension loaded") },
+//        { e -> logger.atWarning().withCause(e).log("Extension failed to load") }
+//      )
     return runtime
   }
 
@@ -143,7 +147,7 @@ object ChordataModule {
       if (action is EngineAction.LoadUrlAction) {
         logger.atInfo().log("BrowserAction: LoadUrlAction %s", action.url)
       } else {
-        logger.atInfo().log("BrowserAction: %s - %s", action::class.simpleName, action)
+        logger.atFine().log("BrowserAction: %s - %s", action::class.simpleName, action)
       }
       next(action)
     }
@@ -187,6 +191,12 @@ object ChordataModule {
     return NotificationsDelegate(NotificationManagerCompat.from(context))
   }
 
+  @Provides
+  @Chordata
+  fun builtInExtension(runtime: GeckoRuntime): GeckoResult<WebExtension> {
+    return runtime.webExtensionController.ensureGeckoTestBuiltIn()
+  }
+
   private fun WebExtensionController.ensureGeckoTestBuiltIn() =
-    ensureBuiltIn("resource://android/assets/geckotest/", "geckoview_chordata_test@pitchedapps")
+    ensureBuiltIn("resource://android/assets/geckotest/", WEB_CHANNEL_EXTENSION_ID)
 }
