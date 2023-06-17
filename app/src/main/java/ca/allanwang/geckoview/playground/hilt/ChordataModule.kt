@@ -13,7 +13,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import java.util.Optional
+import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlin.jvm.optionals.getOrNull
 import mozilla.components.browser.engine.gecko.GeckoEngine
 import mozilla.components.browser.engine.gecko.fetch.GeckoViewFetchClient
 import mozilla.components.browser.engine.gecko.permission.GeckoSitePermissionsStorage
@@ -38,19 +41,13 @@ import mozilla.components.support.base.android.NotificationsDelegate
 import org.mozilla.geckoview.GeckoRuntime
 import org.mozilla.geckoview.GeckoRuntimeSettings
 import org.mozilla.geckoview.WebExtensionController
-import java.util.Optional
-import javax.inject.Qualifier
-import kotlin.jvm.optionals.getOrNull
 
+@Qualifier annotation class Chordata
 
-@Qualifier
-annotation class Chordata
 @Module
 @InstallIn(SingletonComponent::class)
 interface ChordataBindModule {
-  @BindsOptionalOf
-  @Chordata
-  fun userAgent(): String
+  @BindsOptionalOf @Chordata fun userAgent(): String
 }
 
 @Module
@@ -62,33 +59,35 @@ object ChordataModule {
   /**
    * Windows based user agent.
    *
-   * Note that Facebook's mobile webpage for mobile user agents is completely different from the desktop ones.
-   * All elements become divs, so nothing can be queried. There is a new UI too, but it doesn't seem worth migrating all other logic over.
+   * Note that Facebook's mobile webpage for mobile user agents is completely different from the
+   * desktop ones. All elements become divs, so nothing can be queried. There is a new UI too, but
+   * it doesn't seem worth migrating all other logic over.
    */
-  private const val USER_AGENT_WINDOWS = "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/112.0"
+  private const val USER_AGENT_WINDOWS =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/112.0"
 
-  private const val USER_AGENT_WINDOWS_FROST = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.90 Safari/537.36"
-  @Provides
-  @Singleton
-  @Chordata
-  fun userAgent(): String = USER_AGENT_WINDOWS_FROST
+  private const val USER_AGENT_WINDOWS_FROST =
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.90 Safari/537.36"
+  @Provides @Singleton @Chordata fun userAgent(): String = USER_AGENT_WINDOWS_FROST
 
   @Provides
   @Singleton
   fun geckoRuntime(@ApplicationContext context: Context): GeckoRuntime {
     val settings =
-        GeckoRuntimeSettings.Builder()
-            .consoleOutput(BuildConfig.DEBUG)
-            .debugLogging(BuildConfig.DEBUG)
-            .javaScriptEnabled(true)
-            .build()
+      GeckoRuntimeSettings.Builder()
+        .consoleOutput(BuildConfig.DEBUG)
+        .loginAutofillEnabled(true)
+        .debugLogging(BuildConfig.DEBUG)
+        .javaScriptEnabled(true)
+        .build()
 
     val runtime = GeckoRuntime.create(context, settings)
     runtime.webExtensionController
-        .ensureGeckoTestBuiltIn()
-        .accept(
-            { logger.atInfo().log("Extension loaded") },
-            { e -> logger.atWarning().withCause(e).log("Extension failed to load") })
+      .ensureGeckoTestBuiltIn()
+      .accept(
+        { logger.atInfo().log("Extension loaded") },
+        { e -> logger.atWarning().withCause(e).log("Extension failed to load") }
+      )
     return runtime
   }
 
@@ -107,9 +106,9 @@ object ChordataModule {
   @Provides
   @Singleton
   fun engine(
-      @ApplicationContext context: Context,
-      settings: Settings,
-      runtime: GeckoRuntime
+    @ApplicationContext context: Context,
+    settings: Settings,
+    runtime: GeckoRuntime
   ): Engine {
     return GeckoEngine(context, settings, runtime)
   }
@@ -123,8 +122,8 @@ object ChordataModule {
   @Provides
   @Singleton
   fun sitePermissionStorage(
-      @ApplicationContext context: Context,
-      runtime: GeckoRuntime
+    @ApplicationContext context: Context,
+    runtime: GeckoRuntime
   ): SitePermissionsStorage {
     return GeckoSitePermissionsStorage(runtime, OnDiskSitePermissionsStorage(context))
   }
@@ -137,9 +136,9 @@ object ChordataModule {
 
   private class LoggerMiddleWare : Middleware<BrowserState, BrowserAction> {
     override fun invoke(
-        context: MiddlewareContext<BrowserState, BrowserAction>,
-        next: (BrowserAction) -> Unit,
-        action: BrowserAction
+      context: MiddlewareContext<BrowserState, BrowserAction>,
+      next: (BrowserAction) -> Unit,
+      action: BrowserAction
     ) {
       if (action is EngineAction.LoadUrlAction) {
         logger.atInfo().log("BrowserAction: LoadUrlAction %s", action.url)
@@ -153,11 +152,11 @@ object ChordataModule {
   @Provides
   @Singleton
   fun browserStore(
-      @ApplicationContext context: Context,
-      icons: BrowserIcons,
-      sitePermissionsStorage: SitePermissionsStorage,
-      engine: Engine,
-      notificationsDelegate: NotificationsDelegate,
+    @ApplicationContext context: Context,
+    icons: BrowserIcons,
+    sitePermissionsStorage: SitePermissionsStorage,
+    engine: Engine,
+    notificationsDelegate: NotificationsDelegate,
   ): BrowserStore {
 
     val middleware = buildList {
@@ -171,13 +170,14 @@ object ChordataModule {
     val store = BrowserStore(middleware = middleware)
     icons.install(engine, store)
     WebNotificationFeature(
-        context = context,
-        engine = engine,
-        browserIcons = icons,
-        smallIcon = R.mipmap.ic_launcher_round,
-        sitePermissionsStorage = sitePermissionsStorage,
-        activityClass = ChordataActivity::class.java,
-        notificationsDelegate = notificationsDelegate)
+      context = context,
+      engine = engine,
+      browserIcons = icons,
+      smallIcon = R.mipmap.ic_launcher_round,
+      sitePermissionsStorage = sitePermissionsStorage,
+      activityClass = ChordataActivity::class.java,
+      notificationsDelegate = notificationsDelegate
+    )
     return store
   }
 
@@ -188,5 +188,5 @@ object ChordataModule {
   }
 
   private fun WebExtensionController.ensureGeckoTestBuiltIn() =
-      ensureBuiltIn("resource://android/assets/geckotest/", "geckoview_chordata_test@pitchedapps")
+    ensureBuiltIn("resource://android/assets/geckotest/", "geckoview_chordata_test@pitchedapps")
 }

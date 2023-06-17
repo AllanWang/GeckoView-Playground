@@ -232,7 +232,7 @@ class ChordataFragment : Fragment() {
 
     const val GITHUB_URL = "https://github.com/AllanWang"
     const val NOTIFICATION_DEMO_URL = "https://pushalert.co/demo"
-    const val FACEBOOK_M_URL = "https://m.facebook.com"
+    const val FACEBOOK_M_URL = "https://touch.facebook.com"
     const val FACEBOOK_M_PUSH_URL = "https://m.facebook.com/settings/notifications/push/"
     const val MESSENGER_URL = "https://www.messenger.com/"
 
