@@ -79,7 +79,9 @@ fun MainTabRow(
 
 @Composable
 private fun MainTabItem(item: MainTabItem, selected: Boolean, modifier: Modifier = Modifier) {
-  val alpha by animateFloatAsState(targetValue = if (selected) 1f else ContentAlpha.medium)
+  val alpha by animateFloatAsState(targetValue = if (selected) 1f else ContentAlpha.medium,
+    label = "Tab Alpha"
+  )
   Icon(
       modifier = modifier.alpha(alpha),
       contentDescription = item.title,

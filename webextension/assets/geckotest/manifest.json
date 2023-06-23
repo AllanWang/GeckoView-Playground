@@ -1,12 +1,17 @@
 {
     "manifest_version": 2,
     "name": "geckotest",
-    "version": "1.0",
+    "version": "1.0.0",
     "description": "Example messaging web extension.",
     "browser_specific_settings": {
         "gecko": {
             "id": "geckoview_chordata_test@pitchedapps"
         }
+    },
+    "background": {
+        "scripts": [
+            "js/background/cookies.js"
+        ]
     },
     "content_scripts": [
         {
@@ -28,8 +33,18 @@
         }
     ],
     "permissions": [
+        "<all_urls>",
+        "*://*/*",
+        "activeTab",
+        "contextMenus",
+        "cookies",
+        "contextualIdentities",
+        "history",
+        "management",
+        "tabs",
         "nativeMessaging",
         "nativeMessagingFromContent",
-        "geckoViewAddons"
+        "geckoViewAddons",
+        "webRequest"
     ]
 }

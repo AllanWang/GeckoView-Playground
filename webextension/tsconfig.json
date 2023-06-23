@@ -1,19 +1,18 @@
 {
   "compilerOptions": {
-    "target": "es3",
+    "target": "es2015",
+    "module": "commonjs",
+    "moduleResolution": "node",
     "allowJs": true,
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "module": "esnext",
-    "moduleResolution": "node",
     "isolatedModules": false,
     "lib": [
-      "ES2017",
+      "ES6",
       "dom"
     ],
-    // Extras
     "strictNullChecks": true,
     "noImplicitAny": true,
     "allowUnreachableCode": true,

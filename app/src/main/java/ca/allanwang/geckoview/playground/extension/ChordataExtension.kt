@@ -28,7 +28,7 @@ class ChordataExtension(
   private val converter: ExtensionModelConverter,
 ) : LifecycleAwareFeature {
 
-  private var extensionController =
+  private val extensionController =
     WebExtensionController(
       WEB_CHANNEL_EXTENSION_ID,
       WEB_CHANNEL_EXTENSION_URL,
@@ -42,7 +42,7 @@ class ChordataExtension(
     val messageHandler = ChordataBackgroundMessageHandler()
     extensionController.registerBackgroundMessageHandler(
       messageHandler,
-      WEB_CHANNEL_BACKGROUND_MESSAGING_ID
+      WEB_CHANNEL_BACKGROUND_MESSAGING_ID,
     )
 
     extensionController.install(runtime)
@@ -54,6 +54,7 @@ class ChordataExtension(
           .ifChanged { it.engineState.engineSession }
           .collect {
             it.engineState.engineSession?.let { engineSession ->
+              logger.atInfo().log("Register content message handler ${it.id}")
               registerContentMessageHandler(engineSession)
             }
           }
@@ -71,6 +72,12 @@ class ChordataExtension(
   }
 
   private class ChordataBackgroundMessageHandler : MessageHandler {
+
+    override fun onMessage(message: Any, source: EngineSession?): Any? {
+      logger.atInfo().log("onMessage: %s", message)
+      return null
+    }
+
     override fun onPortConnected(port: Port) {
       logger.atInfo().log("background onPortConnected: %s", port.name())
     }
@@ -80,7 +87,7 @@ class ChordataExtension(
     MessageHandler {
     override fun onMessage(message: Any, source: EngineSession?): Any? {
       if (message is String) {
-        logger.atFine().log("onMessage: %s", message)
+        logger.atInfo().log("onMessage: %s", message)
         return null
       }
       val model = converter.fromJSONObject(message as? JSONObject)
@@ -103,9 +110,14 @@ class ChordataExtension(
       return null
     }
 
+    override fun onPortConnected(port: Port) {
+      logger.atInfo().log("content onPortConnected")
+      super.onPortConnected(port)
+    }
+
     override fun onPortMessage(message: Any, port: Port) {
       if (message is String) {
-        logger.atFine().log("onPortMessage: %s", message)
+        logger.atInfo().log("onPortMessage: %s", message)
         return
       }
       val model = converter.fromJSONObject(message as? JSONObject)
@@ -132,7 +144,7 @@ class ChordataExtension(
 
     const val WEB_CHANNEL_EXTENSION_ID = "geckoview_chordata_test@pitchedapps"
     const val WEB_CHANNEL_MESSAGING_ID = "chordataTestChannel"
-    const val WEB_CHANNEL_BACKGROUND_MESSAGING_ID = "chordataTestChannelBackground"
+    const val WEB_CHANNEL_BACKGROUND_MESSAGING_ID = "frostBackgroundChannel"
     const val WEB_CHANNEL_EXTENSION_URL = "resource://android/assets/geckotest/"
   }
 }

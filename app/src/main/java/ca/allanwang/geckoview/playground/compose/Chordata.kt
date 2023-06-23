@@ -1,7 +1,8 @@
 package ca.allanwang.geckoview.playground.compose
 
+import android.view.View
+import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material.LinearProgressIndicator
@@ -11,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.compose.ui.zIndex
+import androidx.core.widget.NestedScrollView
 import mozilla.components.browser.state.action.EngineAction
 import mozilla.components.browser.state.helper.Target
 import mozilla.components.browser.state.state.SessionState
@@ -38,10 +39,15 @@ fun Chordata(engine: Engine, store: BrowserStore, target: Target, modifier: Modi
       }
     )
 
-  Box(modifier = modifier) {
-    ProgressBar(progress = selectedTab?.content?.progress, modifier = Modifier.zIndex(1f))
-    WebContent(engine = engine, store = store, state = WebContentState(selectedTab))
-  }
+  //  Box(modifier = modifier) {
+  //    ProgressBar(progress = selectedTab?.content?.progress, modifier = Modifier.zIndex(1f))
+  WebContent(
+    modifier = modifier,
+    engine = engine,
+    store = store,
+    state = WebContentState(selectedTab)
+  )
+  //  }
 }
 
 @Composable
@@ -79,7 +85,12 @@ private data class WebContentState(
  * https://github.com/google/accompanist/blob/main/web/src/main/java/com/google/accompanist/web/WebView.kt
  */
 @Composable
-private fun WebContent(engine: Engine, store: BrowserStore, state: WebContentState?) {
+private fun WebContent(
+  modifier: Modifier = Modifier,
+  engine: Engine,
+  store: BrowserStore,
+  state: WebContentState?
+) {
 
   BackHandler(state?.canGoBack == true) {
     val id = state?.id ?: return@BackHandler
@@ -87,9 +98,22 @@ private fun WebContent(engine: Engine, store: BrowserStore, state: WebContentSta
   }
 
   AndroidView(
-    modifier = Modifier.fillMaxSize(),
-    factory = { context -> engine.createView(context).asView() },
+    modifier = modifier.fillMaxSize(),
+    factory = { context ->
+      val view = engine.createView(context).asView()
+//      val parentLayout = NestedScrollView(context)
+//      parentLayout.layoutParams =
+//        FrameLayout.LayoutParams(
+//          FrameLayout.LayoutParams.MATCH_PARENT,
+//          FrameLayout.LayoutParams.MATCH_PARENT,
+//        )
+//      parentLayout.addView(view)
+//      parentLayout
+      view
+    },
     update = { view ->
+      var view: View = view
+      if (view is NestedScrollView) view = view.getChildAt(0)
       val engineView = view as EngineView
       if (state == null) {
         engineView.release()

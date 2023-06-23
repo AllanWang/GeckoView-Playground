@@ -2,6 +2,7 @@ package ca.allanwang.geckoview.playground.components.usecases
 
 import ca.allanwang.geckoview.playground.ChordataFragment.Companion.MESSENGER_URL
 import com.google.common.flogger.FluentLogger
+import mozilla.components.browser.engine.gecko.GeckoEngine
 import javax.inject.Inject
 import javax.inject.Singleton
 import mozilla.components.browser.state.action.BrowserAction
@@ -11,11 +12,13 @@ import mozilla.components.browser.state.state.BrowserState
 import mozilla.components.browser.state.state.TabSessionState
 import mozilla.components.browser.state.state.createTab
 import mozilla.components.browser.state.store.BrowserStore
+import mozilla.components.concept.engine.Engine
 import mozilla.components.lib.state.Middleware
 import mozilla.components.lib.state.MiddlewareContext
 
 @Singleton
-class HomeTabsUseCases @Inject internal constructor(private val store: BrowserStore) {
+class HomeTabsUseCases @Inject internal constructor(private val store: BrowserStore,
+  private val engine: Engine) {
 
   fun createHomeTabs(
       contextId: String,
@@ -25,7 +28,7 @@ class HomeTabsUseCases @Inject internal constructor(private val store: BrowserSt
     store.dispatch(TabListAction.RemoveAllTabsAction())
     if (urls.isEmpty()) return emptyList()
     val tabs =
-        urls.mapIndexed { i, url -> createTab(id = tabId(i), url = url, contextId = contextId) }
+        urls.mapIndexed { i, url -> createTab(id = tabId(i), url = url, contextId = contextId.takeIf { engine is GeckoEngine }) }
     store.dispatch(TabListAction.AddMultipleTabsAction(tabs))
     // Preload all tabs
     for (tab in tabs) {
